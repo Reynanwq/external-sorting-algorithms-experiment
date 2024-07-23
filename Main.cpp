@@ -51,26 +51,63 @@ int main() {
 
 // Função para ordenação balanceada multi-caminhos
 void ordenacaoBalanceada(vector<int>& dados, int m, int k, int r) {
+    gerarSequenciasIniciais(dados, m, r);
     // Implementar a ordenação balanceada multi-caminhos
     cout << "Ordenação Balanceada Multi-Caminhos ainda não implementada." << endl;
 }
 
 // Função para ordenação polifásica
 void ordenacaoPolifasica(vector<int>& dados, int m, int k, int r) {
+    gerarSequenciasIniciais(dados, m, r);
     // Implementar a ordenação polifásica
     cout << "Ordenação Polifásica ainda não implementada." << endl;
 }
 
 // Função para ordenação em cascata
 void ordenacaoCascata(vector<int>& dados, int m, int k, int r) {
+    gerarSequenciasIniciais(dados, m, r);
     // Implementar a ordenação em cascata
     cout << "Ordenação em Cascata ainda não implementada." << endl;
 }
 
 // Função para gerar sequências iniciais
 void gerarSequenciasIniciais(vector<int>& dados, int m, int r) {
-    // Implementar a geração de sequências iniciais
-    cout << "Geração de Sequências Iniciais ainda não implementada." << endl;
+    priority_queue<int, vector<int>, greater<int>> heap;
+    vector<vector<int>> sequencias;
+    vector<int> sequenciaAtual;
+
+    for (int i = 0; i < dados.size(); ++i) {
+        if (heap.size() < m) {
+            heap.push(dados[i]);
+        } else {
+            sequenciaAtual.push_back(heap.top());
+            heap.pop();
+            heap.push(dados[i]);
+        }
+
+        if (sequenciaAtual.size() == m || i == dados.size() - 1) {
+            while (!heap.empty()) {
+                sequenciaAtual.push_back(heap.top());
+                heap.pop();
+            }
+            sequencias.push_back(sequenciaAtual);
+            sequenciaAtual.clear();
+        }
+    }
+
+    // Garantir que geramos pelo menos r sequências
+    while (sequencias.size() < r) {
+        sequencias.push_back({});
+    }
+
+    // Exibir sequências geradas para depuração
+    for (int i = 0; i < sequencias.size(); ++i) {
+        cout << "Sequência " << i + 1 << ": ";
+        for (int valor : sequencias[i]) {
+            cout << valor << " ";
+        }
+        cout << endl;
+    }
 }
 
 // Função para intercalar sequências
@@ -81,9 +118,23 @@ void intercalaSequencias(vector<int>& dados, int m, int k) {
 
 // Função para calcular métricas
 void calcularMetricas(const vector<int>& dados, int r, int k) {
-    // Implementar o cálculo das métricas
+    int totalOperacoesEscrita = 0; // Placeholder
+    int totalRegistros = dados.size();
+    double alpha = static_cast<double>(totalOperacoesEscrita) / totalRegistros;
+    cout << "α(r): " << alpha << endl;
     cout << "Cálculo de Métricas ainda não implementado." << endl;
 }
+
+
+// Função para calcular beta
+double calcularBeta(const vector<vector<int>>& sequencias, int m, int j) {
+    double soma = 0;
+    for (const auto& seq : sequencias) {
+        soma += seq.size();
+    }
+    return (1.0 / m) * soma / sequencias.size();
+}
+
 
 // Função para gerar dados aleatórios
 vector<int> gerarDadosAleatorios(int n) {
