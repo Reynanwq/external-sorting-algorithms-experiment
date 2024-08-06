@@ -99,6 +99,7 @@ int main() {
     int k = 4;  // Número de arquivos abertos
     int r = 3;  // Número de sequências iniciais
     int n = 17; // Número de registros
+    if(n ==17){}; // Evitar erro unusable variable replit
 
     // vector<int> dados = gerarDadosAleatorios(n);
     vector<int> dados = {7, 1, 5, 6, 3, 8, 2, 10, 4, 9, 1, 3, 7, 4, 1, 2, 3};
@@ -673,12 +674,12 @@ void mergeArquivosFaseUm(int paginasMerge) {
             arquivoSaida << menor.valor;
             escritasArquivo++;
             bool leuValor = lerValorLinha(menor.origem, menor.linha);
-            // if (leuValor)
-            // {
+            if (leuValor)
+            {
                 // std::cout << "LEU\n";
-            // } else {
+            } else {
                 // std::cout << "Não LEU\n";
-            // }
+            }
             
             // Se a pilha está vazia add endl se não add " "
             if (minHeap.empty()) {
@@ -691,7 +692,7 @@ void mergeArquivosFaseUm(int paginasMerge) {
         }
 
         // Verificar se há mais linhas a serem lidas
-        bool finalLinhaBool = false;
+        // bool finalLinhaBool = false;
         linhaAtual++;
         // std::cout << "linha Atual: " << linhaAtual << endl;
         for (int i = 0; i < paginasMerge; ++i) {
@@ -815,12 +816,12 @@ void mergeArquivosFaseDois(int paginasMerge) {
             arquivoSaida << menor.valor;
             escritasArquivo++;
             bool leuValor = lerValorLinha(menor.origem, menor.linha);
-            // if (leuValor)
-            // {
-            //     std::cout << "LEU\n";
-            // } else {
-            //     std::cout << "Não LEU\n";
-            // }
+            if (leuValor)
+            {
+                // std::cout << "LEU\n";
+            } else {
+                // std::cout << "Não LEU\n";
+            }
             
             // Se a pilha está vazia add endl se não add " "
             if (minHeap.empty()) {
@@ -833,7 +834,7 @@ void mergeArquivosFaseDois(int paginasMerge) {
         }
 
         // Verificar se há mais linhas a serem lidas
-        bool finalLinhaBool = false;
+        // bool finalLinhaBool = false;
         linhaAtual++;
         // std::cout << "linha Atual: " << linhaAtual << endl;
         for (int i = 0; i < paginasMerge; ++i) {
