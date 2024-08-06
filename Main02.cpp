@@ -3,8 +3,16 @@
 #include <queue>
 #include <ctime>
 #include <cstdlib>
+#include <fstream>
+#include <filesystem>
+#include <string>
+#include <cmath>
 
 using namespace std;
+namespace fs = std::filesystem; // Alias para evitar digitar std::filesystem repetidamente
+
+int escritasArquivo, nRegistros, memoria = 0; // Para calcular alfa
+vector<pair<int, float>> listBetas; // Recuperar valores de Beta para cada fase
 
 // Struct Element para heap mínima
 struct Element {
@@ -25,16 +33,20 @@ struct Compare {
 };
 
 // Funções para os métodos de ordenação externa
-void ordenacaoBalanceada(vector<int>& dados, int m, int k, int r);
+void ordenacaoBalanceada(vector<vector<int>>& sequencias, int m, int arquivosTotais, int r);
 void ordenacaoPolifasica(vector<int>& dados, int m, int k, int r);
 void ordenacaoCascata(vector<int>& dados, int m, int k, int r);
 
 // Funções auxiliares
 // void gerarSequenciasIniciais(vector<int>& dados, int m, int r);
 vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r);
+
 void intercalaSequencias(vector<int>& dados, int m, int k);
+void intercalaSequenciasFaseUm(int fase, int arquivosIntercalados, vector<vector<vector<int>>>& estadoInicioFase);
+
 void calcularMetricas(const vector<int>& dados, int r, int k);
 
+double calcularBeta(int nSequencias);
 // Funções para processamento e geração de dados
 vector<int> gerarDadosAleatorios(int n);
 void exibirResultados(const vector<int>& dados, int r, int k);
@@ -47,6 +59,20 @@ void exibirListaDeListasInt(vector<vector<int>>& listas);
 void exibirListaInt(vector<int>& lista, string nome);
 void exibirHeap(priority_queue<Element, vector<Element>, Compare> heap);
 
+
+// Manipulando arquivos
+void criarArquivos(int n);
+void salvarListasEmArquivos(const vector<vector<int>>& listas, int arquivosIntercalados);
+bool apenasUmArquivoPreenchido(int n);
+void salvarEstadoDasPaginas(int fase, int arquivosIntercalados, vector<vector<vector<int>>>& dadosEstado);
+
+int calcularQtdRegistros(const vector<vector<int>>& sequencias);
+int calcularNumeroSequencias(const vector<vector<vector<int>>>& sequencias);
+
+void imprimirSaida(int fase, float beta, const vector<vector<vector<int>>>& sequencias);
+void imprimirSaidaIncremento(int fase, float beta, const vector<vector<vector<int>>>& sequencias, int incrementoPaginas);
+
+
 int main() {
     // Exemplo de uso
     int m = 3;  // Capacidade da memória interna
@@ -57,24 +83,28 @@ int main() {
     // vector<int> dados = gerarDadosAleatorios(n);
     vector<int> dados = {7, 1, 5, 6, 3, 8, 2, 10, 4, 9, 1, 3, 7, 4, 1, 2, 3};
     vector<vector<int>> sequencias = gerarSequenciasIniciais(dados, m, r);
+    nRegistros = calcularQtdRegistros(sequencias);
+    memoria = m;
+
+    criarArquivos(k);
 
     // Escolher o método de ordenação
     char metodo = 'B'; // Pode ser 'B', 'P' ou 'C'
 
-    // switch (metodo) {
-    //     case 'B':
-    //         ordenacaoBalanceada(dados, m, k, r);
-    //         break;
-    //     case 'P':
-    //         ordenacaoPolifasica(dados, m, k, r);
-    //         break;
-    //     case 'C':
-    //         ordenacaoCascata(dados, m, k, r);
-    //         break;
-    //     default:
-    //         cerr << "Método de ordenação inválido!" << endl;
-    //         return 1;
-    // }
+    switch (metodo) {
+        case 'B':
+            ordenacaoBalanceada(sequencias, m, k, r);
+            break;
+        case 'P':
+            ordenacaoPolifasica(dados, m, k, r);
+            break;
+        case 'C':
+            ordenacaoCascata(dados, m, k, r);
+            break;
+        default:
+            cerr << "Método de ordenação inválido!" << endl;
+            return 1;
+    }
 
     // intercalaSequencias(dados, m, k);
     // exibirResultados(dados, r, k);
@@ -83,8 +113,22 @@ int main() {
 }
 
 // Função para ordenação balanceada multi-caminhos
-void ordenacaoBalanceada(vector<int>& dados, int m, int k, int r) {
-    gerarSequenciasIniciais(dados, m, r);
+void ordenacaoBalanceada(vector<vector<int>>& sequencias, int m, int arquivosTotais, int r) {
+    int arquivosIntercalados =  floor(arquivosTotais/2);
+    salvarListasEmArquivos(sequencias, arquivosIntercalados);
+    int fase = 0;
+    vector<vector<vector<int>>> estadoInicioFase;
+
+        if (fase % arquivosIntercalados == 0) {
+            intercalaSequenciasFaseUm(fase, arquivosIntercalados, estadoInicioFase);
+            // break;
+        } else {
+
+        }
+
+    // while (!apenasUmArquivoPreenchido(arquivosIntercalados)) {
+    //     break;
+    // }
     // Implementar a ordenação balanceada multi-caminhos
     cout << "Ordenação Balanceada Multi-Caminhos ainda não implementada." << endl;
 }
@@ -105,43 +149,43 @@ void ordenacaoCascata(vector<int>& dados, int m, int k, int r) {
 
 
 // Função para intercalar sequências
-void intercalaSequencias(vector<int>& dados, int m, int k) {
-    // Estrutura de dados para armazenar sequências iniciais
-    vector<vector<int>> sequencias;
-    gerarSequenciasIniciais(dados, m, sequencias.size());
+// void intercalaSequencias(vector<int>& dados, int m, int k) {
+//     // Estrutura de dados para armazenar sequências iniciais
+//     vector<vector<int>> sequencias;
+//     gerarSequenciasIniciais(dados, m, sequencias.size());
 
-    // Fila de prioridade para armazenar os elementos e suas origens
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+//     // Fila de prioridade para armazenar os elementos e suas origens
+//     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
 
-    // Vetor de índices para manter o acompanhamento da posição de cada sequência
-    vector<int> indices(sequencias.size(), 0);
+//     // Vetor de índices para manter o acompanhamento da posição de cada sequência
+//     vector<int> indices(sequencias.size(), 0);
 
-    // Inicializar a fila de prioridade com o primeiro elemento de cada sequência
-    for (int i = 0; i < sequencias.size(); ++i) {
-        if (!sequencias[i].empty()) {
-            pq.push(make_pair(sequencias[i][0], i));
-        }
-    }
+//     // Inicializar a fila de prioridade com o primeiro elemento de cada sequência
+//     for (int i = 0; i < sequencias.size(); ++i) {
+//         if (!sequencias[i].empty()) {
+//             pq.push(make_pair(sequencias[i][0], i));
+//         }
+//     }
 
-    vector<int> dadosOrdenados;
+//     vector<int> dadosOrdenados;
 
-    // Processo de intercalação
-    while (!pq.empty()) {
-        pair<int, int> p = pq.top();
-        int valor = p.first;
-        int origem = p.second;
-        pq.pop();
-        dadosOrdenados.push_back(valor);
+//     // Processo de intercalação
+//     while (!pq.empty()) {
+//         pair<int, int> p = pq.top();
+//         int valor = p.first;
+//         int origem = p.second;
+//         pq.pop();
+//         dadosOrdenados.push_back(valor);
 
-        // Inserir o próximo elemento da sequência de origem, se existir
-        if (++indices[origem] < sequencias[origem].size()) {
-            pq.push(make_pair(sequencias[origem][indices[origem]], origem));
-        }
-    }
+//         // Inserir o próximo elemento da sequência de origem, se existir
+//         if (++indices[origem] < sequencias[origem].size()) {
+//             pq.push(make_pair(sequencias[origem][indices[origem]], origem));
+//         }
+//     }
 
-    // Copiar os dados ordenados de volta para o vetor de dados original
-    dados = dadosOrdenados;
-}
+//     // Copiar os dados ordenados de volta para o vetor de dados original
+//     dados = dadosOrdenados;
+// }
 
 
 vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r) {
@@ -192,14 +236,25 @@ vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r) {
         sequencias.push_back({});
     }
 
-    // Exibir sequências geradas para depuração
-    for (int i = 0; i < sequencias.size(); ++i) {
-        cout << "Sequência " << i + 1 << ": ";
-        for (int valor : sequencias[i]) {
-            cout << valor << " ";
+    // Verificar se a quantidade de sequências iniciais é igual r
+    if (sequencias.size() > r){
+        vector<vector<int>> primeirasRListas;
+        for (int i = 0; i < r; i++)
+        {
+            primeirasRListas.push_back(sequencias[i]);
         }
-        cout << endl;
+        // Exibir sequências geradas para depuração
+        for (int i = 0; i < primeirasRListas.size(); ++i) {
+            cout << "Sequência " << i + 1 << ": ";
+            for (int valor : primeirasRListas[i]) {
+                cout << valor << " ";
+            }
+            cout << endl;
+        }
+        return primeirasRListas;
     }
+
+
     return sequencias;
 }
 
@@ -213,12 +268,8 @@ void calcularMetricas(const vector<int>& dados, int r, int k) {
 }
 
 // Função para calcular beta
-double calcularBeta(const vector<vector<int>>& sequencias, int m, int j) {
-    double soma = 0;
-    for (const auto& seq : sequencias) {
-        soma += seq.size();
-    }
-    return (1.0 / m) * soma / sequencias.size();
+double calcularBeta(int nSequencias){
+    return round((1.0 / (memoria * nSequencias)) * nRegistros * 100) / 100;
 }
 
 // Função para gerar dados aleatórios
@@ -291,4 +342,198 @@ void exibirHeap(priority_queue<Element, vector<Element>, Compare> heap) {
         heap.pop();
     }
     cout << endl;
+}
+
+void criarArquivos(int n) {
+    // namespace fs = std::filesystem; // Alias para std::filesystem
+    fs::path folder = "pages";
+
+    // Cria a pasta 'pages' caso ela não exista
+    if (!fs::exists(folder)) {
+        fs::create_directory(folder);
+    }
+
+    // Cria n-1 arquivos .txt na pasta 'pages'
+    for (int i = 0; i < n; ++i) {
+        fs::path filePath = folder / (to_string(i) + ".txt");
+
+        // Verifica se o arquivo já existe
+        ofstream file(filePath, std::ios::trunc);
+        if (file.is_open()) {
+            file.close();
+            // cout << "Arquivo criado: " << filePath << endl;
+        } else {
+            // cerr << "Erro ao criar o arquivo: " << filePath << endl;
+        }
+    }
+}
+
+void salvarListasEmArquivos(const vector<vector<int>>& listas, int arquivosIntercalados) {
+    // Cria a pasta 'pages' caso ela não exista
+    fs::path folder = "pages";
+    if (!fs::exists(folder)) {
+        fs::create_directory(folder);
+    }
+
+    // Abrir os arquivos de saída
+    vector<ofstream> arquivos(arquivosIntercalados);
+    for (int i = 0; i < arquivosIntercalados; ++i) {
+        fs::path filePath = folder / (std::to_string(i) + ".txt");
+        arquivos[i].open(filePath, ios::app); // Abre o arquivo em modo append
+        if (!arquivos[i].is_open()) {
+            cerr << "Erro ao abrir o arquivo: " << filePath << endl;
+            return;
+        }
+    }
+
+    // Salva as listas nos arquivos correspondentes
+    for (size_t i = 0; i < listas.size(); ++i) {
+        int arquivoIndex = i % arquivosIntercalados;
+        for (const int& valor : listas[i]) {
+            arquivos[arquivoIndex] << valor << " ";
+        }
+        arquivos[arquivoIndex] << endl;
+    }
+
+    // Fecha os arquivos
+    for (int i = 0; i < arquivosIntercalados; ++i) {
+        if (arquivos[i].is_open()) {
+            arquivos[i].close();
+        }
+    }
+}
+
+void intercalaSequenciasFaseUm(int fase, int arquivosIntercalados, vector<vector<vector<int>>>& estadoInicioFase){
+    salvarEstadoDasPaginas(fase, arquivosIntercalados, estadoInicioFase);
+    int nSequencias = calcularNumeroSequencias(estadoInicioFase);
+    float beta = calcularBeta(nSequencias);
+    listBetas.push_back(make_pair(fase, beta)); // Salvando estado de beta para calcular desempenho
+    imprimirSaida(fase, beta, estadoInicioFase);
+    
+}
+
+bool apenasUmArquivoPreenchido(int n) {
+    fs::path folder = "pages";
+    int countPreenchidos = 0;
+
+    for (int i = 0; i < n; ++i) {
+        fs::path filePath = folder / (to_string(i) + ".txt");
+        if (fs::exists(filePath)) {
+            ifstream file(filePath);
+            string line;
+            if (getline(file, line)) {
+                if (!line.empty()) {
+                    countPreenchidos++;
+                    if (countPreenchidos > 1) {
+                        return false;
+                    }
+                }
+            }
+            file.close();
+        }
+    }
+
+    return countPreenchidos == 1;
+}
+
+void salvarEstadoDasPaginas(int fase, int arquivosIntercalados, vector<vector<vector<int>>>& dadosEstado) {
+    int turno = fase % 2;
+    int inicio, fim;
+
+    if (turno == 0) {
+        inicio = 0;
+        fim = arquivosIntercalados;
+    } else {
+        inicio = arquivosIntercalados;
+        fim = arquivosIntercalados * 2;
+    }
+
+    // Limpa dadosEstado para evitar dados antigos
+    dadosEstado.clear();
+    
+    // Lê os arquivos de acordo com a faixa
+    for (int i = inicio; i < fim; ++i) {
+        fs::path filePath = "pages/" + to_string(i) + ".txt";
+        ifstream arquivo(filePath);
+        if (!arquivo.is_open()) {
+            cerr << "Não foi possível abrir o arquivo: " << i << ".txt" << endl;
+            continue;
+        }
+
+        vector<vector<int>> matrizArquivo;
+        string linha;
+        while (getline(arquivo, linha)) {
+            vector<int> linhaDados;
+            size_t pos = 0;
+            while ((pos = linha.find(' ')) != string::npos) {
+                string token = linha.substr(0, pos);
+                if (!token.empty()) {
+                    linhaDados.push_back(stoi(token));
+                }
+                linha.erase(0, pos + 1);
+            }
+            if (!linha.empty()) {
+                linhaDados.push_back(stoi(linha)); // Adiciona o último número se não estiver vazio
+            }
+            matrizArquivo.push_back(linhaDados);
+        }
+        arquivo.close();
+
+        // Adiciona a matriz do arquivo ao dadosEstado
+        dadosEstado.push_back(matrizArquivo);
+    }
+}
+
+int calcularQtdRegistros(const vector<vector<int>>& sequencias){
+    int qtdRegistro = 0;
+    for (int i = 0; i < sequencias.size(); i++) {
+        qtdRegistro += sequencias[i].size();
+    }
+    return qtdRegistro;
+}
+
+int calcularNumeroSequencias(const vector<vector<vector<int>>>& sequencias){
+    int qtdSequencias = 0;
+    for (int i = 0; i < sequencias.size(); i++) {
+        qtdSequencias += sequencias[i].size();
+    }
+    return qtdSequencias;
+}
+
+void imprimirSaida(int fase, float beta, const vector<vector<vector<int>>>& sequencias){
+    cout << "fase " << fase << " " << beta << endl;
+    for (int i = 0; i < sequencias.size(); i++) {
+        cout << i + 1 << ": ";
+        for (int j = 0; j < sequencias[i].size(); j++){
+            for (int k = 0; k < sequencias[i][j].size(); k++) {
+                if (k == 0){
+                    cout << "{" << sequencias[i][j][k] << " ";
+                } else if(k < sequencias[i][j].size() - 1) {
+                    cout << sequencias[i][j][k] << " ";
+                } else {
+                    cout << sequencias[i][j][k] << "}";
+                }
+            }
+        }
+        cout << endl;
+    }
+}
+
+void imprimirSaidaIncremento(int fase, float beta, const vector<vector<vector<int>>>& sequencias, int incrementoPaginas){
+    cout << "fase " << fase << " " << beta << endl;
+    for (int i = 0; i < sequencias.size(); i++) {
+        cout << i + 1 + incrementoPaginas << ": ";
+        for (int j = 0; j < sequencias[i].size(); j++){
+            for (int k = 0; k < sequencias[i][j].size(); k++) {
+                if (k == 0){
+                    cout << "{" << sequencias[i][j][k] << " ";
+                } else if(k < sequencias[i][j].size() - 1) {
+                    cout << sequencias[i][j][k] << " ";
+                } else {
+                    cout << sequencias[i][j][k] << "}";
+                }
+            }
+        }
+        cout << endl;
+    }
 }
