@@ -22,9 +22,9 @@ namespace fs = std::filesystem; // Alias para evitar digitar std::filesystem rep
 void ordenacaoPolifasica(vector<int>& dados, int m, int k, int r);
 void ordenacaoCascata(vector<int>& dados, int m, int k, int r);
 
-// Funções Geral
-double calcularAlfa(int escritasArquivo, int nRegistros) ;
-double calcularBeta(int memoria, int nSequencias, int nRegistros);
+// // Funções Geral
+// double calcularAlfa(int escritasArquivo, int nRegistros) ;
+// double calcularBeta(int memoria, int nSequencias, int nRegistros);
 int calcularQtdRegistros(const vector<vector<int>>& sequencias);
 int calcularNumeroSequencias(const vector<vector<vector<int>>>& sequencias);
 void imprimirSaida(int fase, float beta, const vector<vector<vector<int>>>& sequencias);
@@ -45,8 +45,6 @@ void calcularMetricas(const vector<int>& dados, int r, int k);
     // Funções para processamento e geração de dados
 void exibirResultados(const vector<int>& dados, int r, int k);
     // Funções Geral - Utilizadas
-vector<int> gerarDadosAleatorios(int n);
-
 
 // Funções Secundárias auxiliares
     // Funções para exibir - Importar no arquivo balanceado - pode usar ou não
@@ -123,14 +121,10 @@ int main() {
 
 // Função para ordenação balanceada multi-caminhos
 void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arquivosTotais, int r, int nRegistros, vector<pair<int, float>> listBetas, int& escritasArquivo) {
-    int arquivosIntercalados =  floor(arquivosTotais/2);
-    salvarListasEmArquivos(sequencias, arquivosIntercalados);
     int fase = 0;
     vector<vector<vector<int>>> estadoInicioFase;
-
-    // intercalaSequenciasFaseUmBalanceada(fase, arquivosIntercalados, estadoInicioFase);
-    // fase++;        
-    // intercalaSequenciasFaseDoisBalanceada(fase, arquivosIntercalados, estadoInicioFase);
+    int arquivosIntercalados =  floor(arquivosTotais/2);
+    salvarListasEmArquivos(sequencias, arquivosIntercalados);
 
     while (!apenasUmArquivoPreenchido(arquivosIntercalados)) {
         if (fase % arquivosIntercalados == 0) {
@@ -138,7 +132,6 @@ void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arqui
         } else {
             intercalaSequenciasFaseDoisBalanceada(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas, escritasArquivo);
         }
-        // break;
         fase++;
     }
 
@@ -148,9 +141,6 @@ void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arqui
     } else {
         imprimirSaidaIncremento(fase, beta, estadoInicioFase, arquivosIntercalados);
     }
-    // Implementar a ordenação balanceada multi-caminhos
-    // intercalaSequenciasFaseUmBalanceada(fase, arquivosIntercalados, estadoInicioFase);
-    // cout << "Ordenação Balanceada Multi-Caminhos ainda não implementada." << endl;
 }
 
 // Função para ordenação polifásica
@@ -245,23 +235,13 @@ void calcularMetricas(const vector<int>& dados, int r, int k) {
 }
 
 // Função para calcular alfa
-double calcularAlfa(int escritasArquivo, int nRegistros) {
-    return round((escritasArquivo / nRegistros) * 100) / 100;
-}
+// double calcularAlfa(int escritasArquivo, int nRegistros) {
+//     return round((escritasArquivo / nRegistros) * 100) / 100;
+// }
 
 // Função para calcular beta
 double calcularBeta(int memoria, int nSequencias, int nRegistros){
     return round((1.0 / (memoria * nSequencias)) * nRegistros * 100) / 100;
-}
-
-// Função para gerar dados aleatórios
-vector<int> gerarDadosAleatorios(int n) {
-    vector<int> dados(n);
-    srand(static_cast<unsigned>(time(0))); // Semente para números aleatórios
-    for (int& valor : dados) {
-        valor = rand() % 100; // Números aleatórios entre 0 e 99
-    }
-    return dados;
 }
 
 // Função para exibir resultados
