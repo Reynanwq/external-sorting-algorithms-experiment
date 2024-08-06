@@ -61,6 +61,7 @@ void intercalaSequenciasFaseUm(int fase, int arquivosIntercalados, vector<vector
 void intercalaSequenciasFaseDois(int fase, int arquivosIntercalados, vector<vector<vector<int>>>& estadoInicioFase);
 void calcularMetricas(const vector<int>& dados, int r, int k);
 
+double calcularAlfa() ;
 double calcularBeta(int nSequencias);
 // Funções para processamento e geração de dados
 vector<int> gerarDadosAleatorios(int n);
@@ -105,6 +106,8 @@ int main() {
     nRegistros = calcularQtdRegistros(sequencias);
     memoria = m;
 
+    cout << fixed << setprecision(2);
+
     criarArquivos(k);
 
     // Escolher o método de ordenação
@@ -128,6 +131,9 @@ int main() {
     // intercalaSequencias(dados, m, k);
     // exibirResultados(dados, r, k);
 
+    float alfa = calcularAlfa();
+    cout << "final " << alfa << endl;
+    
     return 0;
 }
 
@@ -138,23 +144,29 @@ void ordenacaoBalanceada(vector<vector<int>>& sequencias, int m, int arquivosTot
     int fase = 0;
     vector<vector<vector<int>>> estadoInicioFase;
 
+    // intercalaSequenciasFaseUm(fase, arquivosIntercalados, estadoInicioFase);
+    // fase++;        
+    // intercalaSequenciasFaseDois(fase, arquivosIntercalados, estadoInicioFase);
+
+    while (!apenasUmArquivoPreenchido(arquivosIntercalados)) {
         if (fase % arquivosIntercalados == 0) {
             intercalaSequenciasFaseUm(fase, arquivosIntercalados, estadoInicioFase);
-            // break;
         } else {
-        }
-            fase++;
             intercalaSequenciasFaseDois(fase, arquivosIntercalados, estadoInicioFase);
+        }
+        // break;
+        fase++;
+    }
 
-    // while (!apenasUmArquivoPreenchido(arquivosIntercalados)) {
-    //     break;
-    // }
+    float beta = intercalaSalvarCalcular(fase, arquivosIntercalados, estadoInicioFase);
+    if (fase % arquivosIntercalados == 0) {
+        imprimirSaida(fase, beta, estadoInicioFase);
+    } else {
+        imprimirSaidaIncremento(fase, beta, estadoInicioFase, arquivosIntercalados);
+    }
     // Implementar a ordenação balanceada multi-caminhos
-    fase++;
-    intercalaSequenciasFaseUm(fase, arquivosIntercalados, estadoInicioFase);
-    
-
-    cout << "Ordenação Balanceada Multi-Caminhos ainda não implementada." << endl;
+    // intercalaSequenciasFaseUm(fase, arquivosIntercalados, estadoInicioFase);
+    // cout << "Ordenação Balanceada Multi-Caminhos ainda não implementada." << endl;
 }
 
 // Função para ordenação polifásica
@@ -182,7 +194,7 @@ vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r) {
 
     while (!dados.empty() || !heap.empty() || !sequenciaAtual.empty()) {
         if (heap.size() < m && !dados.empty()) {
-            cout << "ADD HEAP" << endl;
+            // cout << "ADD HEAP" << endl;
             if (ultimoPush < dados.front()) {
                 heap.push(Element(dados.front()));
             } else {
@@ -191,7 +203,7 @@ vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r) {
             dados.erase(dados.begin());
 
         } else {
-            cout << "ADD SEQUENCIA" << endl;
+            // cout << "ADD SEQUENCIA" << endl;
             if (!heap.empty() && !heap.top().marked)  {
                 sequenciaAtual.push_back(heap.top().value);
                 ultimoPush = heap.top().value;
@@ -203,15 +215,13 @@ vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r) {
                 ultimoPush = 0;
                 desmarcarTodosElementos(heap);
             }
-
-
         }
-            exibirListaInt(dados, "Registros");
-            exibirHeap(heap);
-            exibirListaInt(sequenciaAtual, "Sequencia Atual");
-            cout << "Heap mínima: " << heap.top().value << endl;
-            cout << "Marcado: " << heap.top().marked << endl;
-            exibirListaDeListasInt(sequencias);
+            // exibirListaInt(dados, "Registros");
+            // exibirHeap(heap);
+            // exibirListaInt(sequenciaAtual, "Sequencia Atual");
+            // cout << "Heap mínima: " << heap.top().value << endl;
+            // cout << "Marcado: " << heap.top().marked << endl;
+            // exibirListaDeListasInt(sequencias);
     }
 
     // Garantir que geramos pelo menos m sequências
@@ -227,13 +237,13 @@ vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r) {
             primeirasRListas.push_back(sequencias[i]);
         }
         // Exibir sequências geradas para depuração
-        for (int i = 0; i < primeirasRListas.size(); ++i) {
-            cout << "Sequência " << i + 1 << ": ";
-            for (int valor : primeirasRListas[i]) {
-                cout << valor << " ";
-            }
-            cout << endl;
-        }
+        // for (int i = 0; i < primeirasRListas.size(); ++i) {
+        //     cout << "Sequência " << i + 1 << ": ";
+        //     for (int valor : primeirasRListas[i]) {
+        //         cout << valor << " ";
+        //     }
+        //     cout << endl;
+        // }
         return primeirasRListas;
     }
 
@@ -248,6 +258,11 @@ void calcularMetricas(const vector<int>& dados, int r, int k) {
     double alpha = static_cast<double>(totalOperacoesEscrita) / totalRegistros;
     cout << "α(r): " << alpha << endl;
     cout << "Cálculo de Métricas ainda não implementado." << endl;
+}
+
+// Função para calcular alfa
+double calcularAlfa() {
+    return round((escritasArquivo / nRegistros) * 100) / 100;
 }
 
 // Função para calcular beta
@@ -429,12 +444,14 @@ void intercalaSequenciasFaseUm(int fase, int arquivosIntercalados, vector<vector
     float beta = intercalaSalvarCalcular(fase, arquivosIntercalados, estadoInicioFase);
     imprimirSaida(fase, beta, estadoInicioFase);
     mergeArquivosFaseUm(arquivosIntercalados);
+    criarArquivosRange(0, arquivosIntercalados); // Apaga conteúdo antigo
 }
 
 void intercalaSequenciasFaseDois(int fase, int arquivosIntercalados, vector<vector<vector<int>>>& estadoInicioFase) {
     float beta = intercalaSalvarCalcular(fase, arquivosIntercalados, estadoInicioFase);
     imprimirSaidaIncremento(fase, beta, estadoInicioFase, arquivosIntercalados);
     mergeArquivosFaseDois(arquivosIntercalados);
+    criarArquivosRange(arquivosIntercalados, arquivosIntercalados * 2); // Apaga conteúdo antigo
 }
 
 bool apenasUmArquivoPreenchido(int n) {
