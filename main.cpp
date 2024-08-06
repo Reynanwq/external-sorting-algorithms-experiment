@@ -13,88 +13,61 @@
 #include "funcoes_ordenacao_balanceada.h"
 #include "funcoes_ordenacao_polifasica.h"
 #include "funcoes_ordenacao_cascata.h"
+#include "estruturas.h"
 
 using namespace std;
 namespace fs = std::filesystem; // Alias para evitar digitar std::filesystem repetidamente
 
-// Struct Element para heap mínima
-struct Element {
-    int value;
-    bool marked;
-
-    Element(int v, bool m = false) : value(v), marked(m) {}
-};
-
-// Função de comparação personalizada para Element
-struct Compare {
-    bool operator()(const Element& a, const Element& b) const {
-        if (a.marked != b.marked) {
-            return a.marked > b.marked; // elementos marcados são maiores
-        }
-        return a.value > b.value; // se ambos são marcados ou não marcados, compare os valores
-    }
-};
-
-// Estrutura para armazenar o valor e sua origem - intercalação
-struct Valor {
-    int valor;
-    int origem;
-    int linha;
-};
-
-// Comparador para a fila de prioridade da intercalação
-struct Comparador {
-    bool operator()(const Valor& a, const Valor& b) {
-        return a.valor > b.valor; // Para min-heap
-    }
-};
-
 // Funções para os métodos de ordenação externa
-void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arquivosTotais, int r, int nRegistros, vector<pair<int, float>> listBetas, int& escritasArquivo);
 void ordenacaoPolifasica(vector<int>& dados, int m, int k, int r);
 void ordenacaoCascata(vector<int>& dados, int m, int k, int r);
 
-// Funções auxiliares
-// void gerarSequenciasIniciais(vector<int>& dados, int m, int r);
-vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r);
-
-void intercalaSequencias(vector<int>& dados, int m, int k);
-float intercalaSalvarCalcular(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas );
-void intercalaSequenciasFaseUm(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas, int& escritasArquivo);
-void intercalaSequenciasFaseDois(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas, int& escritasArquivo);
-void calcularMetricas(const vector<int>& dados, int r, int k);
-
+// Funções Geral
 double calcularAlfa(int escritasArquivo, int nRegistros) ;
 double calcularBeta(int memoria, int nSequencias, int nRegistros);
-// Funções para processamento e geração de dados
-vector<int> gerarDadosAleatorios(int n);
-void exibirResultados(const vector<int>& dados, int r, int k);
-
-// Funções para criação e processamento da heap mínima
+int calcularQtdRegistros(const vector<vector<int>>& sequencias);
+int calcularNumeroSequencias(const vector<vector<vector<int>>>& sequencias);
+void imprimirSaida(int fase, float beta, const vector<vector<vector<int>>>& sequencias);
+void imprimirSaidaIncremento(int fase, float beta, const vector<vector<vector<int>>>& sequencias, int incrementoPaginas);
+vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r);
+    // Funções para criação e processamento da heap mínima
+    // Importar estruturas
 void desmarcarTodosElementos(priority_queue<Element, vector<Element>, Compare>& heap);
+    // Manipulando arquivos
+void criarArquivos(int n);
+    // Cria ou limpa arquivos em um range
+void criarLimparArquivosRange(int inicio, int fim);
+bool apenasUmArquivoPreenchido(int n);
 
-// Funções para exibir
+    // Funções Geral - Intocadas
+void intercalaSequencias(vector<int>& dados, int m, int k);
+void calcularMetricas(const vector<int>& dados, int r, int k);
+    // Funções para processamento e geração de dados
+void exibirResultados(const vector<int>& dados, int r, int k);
+    // Funções Geral - Utilizadas
+vector<int> gerarDadosAleatorios(int n);
+
+
+// Funções Secundárias auxiliares
+    // Funções para exibir - Importar no arquivo balanceado - pode usar ou não
 void exibirListaDeListasInt(vector<vector<int>>& listas);
 void exibirListaInt(vector<int>& lista, string nome);
 void exibirHeap(priority_queue<Element, vector<Element>, Compare> heap);
 
+// Funções Balanceada
+void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arquivosTotais, int r, int nRegistros, vector<pair<int, float>> listBetas, int& escritasArquivo);
 
-// Manipulando arquivos
-void criarArquivos(int n);
-// Cria ou limpa arquivos em um range
-void criarArquivosRange(int inicio, int fim);
+float intercalaSalvarCalcularBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas );
+void intercalaSequenciasFaseUmBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas, int& escritasArquivo);
+void intercalaSequenciasFaseDoisBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas, int& escritasArquivo);
+
 void salvarListasEmArquivos(const vector<vector<int>>& listas, int arquivosIntercalados);
-bool apenasUmArquivoPreenchido(int n);
-void salvarEstadoDasPaginas(int fase, int arquivosIntercalados, vector<vector<vector<int>>>& dadosEstado);
-
-int calcularQtdRegistros(const vector<vector<int>>& sequencias);
-int calcularNumeroSequencias(const vector<vector<vector<int>>>& sequencias);
-
-void imprimirSaida(int fase, float beta, const vector<vector<vector<int>>>& sequencias);
-void imprimirSaidaIncremento(int fase, float beta, const vector<vector<vector<int>>>& sequencias, int incrementoPaginas);
 
 void mergeArquivosFaseUm(int& paginasMerge, int& escritasArquivo);
 void mergeArquivosFaseDois(int paginasMerge, int& escritasArquivo);
+
+void salvarEstadoDasPaginas(int fase, int arquivosIntercalados, vector<vector<vector<int>>>& dadosEstado);
+
 
 int main() {
     minhaFuncaoGeral();
@@ -155,28 +128,28 @@ void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arqui
     int fase = 0;
     vector<vector<vector<int>>> estadoInicioFase;
 
-    // intercalaSequenciasFaseUm(fase, arquivosIntercalados, estadoInicioFase);
+    // intercalaSequenciasFaseUmBalanceada(fase, arquivosIntercalados, estadoInicioFase);
     // fase++;        
-    // intercalaSequenciasFaseDois(fase, arquivosIntercalados, estadoInicioFase);
+    // intercalaSequenciasFaseDoisBalanceada(fase, arquivosIntercalados, estadoInicioFase);
 
     while (!apenasUmArquivoPreenchido(arquivosIntercalados)) {
         if (fase % arquivosIntercalados == 0) {
-            intercalaSequenciasFaseUm(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas, escritasArquivo);
+            intercalaSequenciasFaseUmBalanceada(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas, escritasArquivo);
         } else {
-            intercalaSequenciasFaseDois(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas, escritasArquivo);
+            intercalaSequenciasFaseDoisBalanceada(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas, escritasArquivo);
         }
         // break;
         fase++;
     }
 
-    float beta = intercalaSalvarCalcular(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas);
+    float beta = intercalaSalvarCalcularBalanceada(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas);
     if (fase % arquivosIntercalados == 0) {
         imprimirSaida(fase, beta, estadoInicioFase);
     } else {
         imprimirSaidaIncremento(fase, beta, estadoInicioFase, arquivosIntercalados);
     }
     // Implementar a ordenação balanceada multi-caminhos
-    // intercalaSequenciasFaseUm(fase, arquivosIntercalados, estadoInicioFase);
+    // intercalaSequenciasFaseUmBalanceada(fase, arquivosIntercalados, estadoInicioFase);
     // cout << "Ordenação Balanceada Multi-Caminhos ainda não implementada." << endl;
 }
 
@@ -377,7 +350,7 @@ void criarArquivos(int n) {
 }
 
 // Cria ou limpa arquivos em um range
-void criarArquivosRange(int inicio, int fim) {
+void criarLimparArquivosRange(int inicio, int fim) {
     // namespace fs = std::filesystem; // Alias para std::filesystem
     fs::path folder = "pages";
 
@@ -443,7 +416,7 @@ void salvarListasEmArquivos(const vector<vector<int>>& listas, int arquivosInter
     }
 }
 
-float intercalaSalvarCalcular(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas ) {
+float intercalaSalvarCalcularBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas ) {
     salvarEstadoDasPaginas(fase, arquivosIntercalados, estadoInicioFase);
     int nSequencias = calcularNumeroSequencias(estadoInicioFase);
     float beta = calcularBeta(memoria, nSequencias, nRegistros);
@@ -451,18 +424,18 @@ float intercalaSalvarCalcular(int& fase, int& arquivosIntercalados, int& nRegist
     return beta;
 }
 
-void intercalaSequenciasFaseUm(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas, int& escritasArquivo) {
-    float beta = intercalaSalvarCalcular(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas);
+void intercalaSequenciasFaseUmBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas, int& escritasArquivo) {
+    float beta = intercalaSalvarCalcularBalanceada(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas);
     imprimirSaida(fase, beta, estadoInicioFase);
     mergeArquivosFaseUm(arquivosIntercalados, escritasArquivo);
-    criarArquivosRange(0, arquivosIntercalados); // Apaga conteúdo antigo
+    criarLimparArquivosRange(0, arquivosIntercalados); // Apaga conteúdo antigo
 }
 
-void intercalaSequenciasFaseDois(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas, int& escritasArquivo) {
-    float beta = intercalaSalvarCalcular(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas);
+void intercalaSequenciasFaseDoisBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas, int& escritasArquivo) {
+    float beta = intercalaSalvarCalcularBalanceada(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas);
     imprimirSaidaIncremento(fase, beta, estadoInicioFase, arquivosIntercalados);
     mergeArquivosFaseDois(arquivosIntercalados, escritasArquivo);
-    criarArquivosRange(arquivosIntercalados, arquivosIntercalados * 2); // Apaga conteúdo antigo
+    criarLimparArquivosRange(arquivosIntercalados, arquivosIntercalados * 2); // Apaga conteúdo antigo
 }
 
 bool apenasUmArquivoPreenchido(int n) {
@@ -612,7 +585,7 @@ void mergeArquivosFaseUm(int& paginasMerge, int& escritasArquivo) {
         finalArquivo.push_back(false);
     }
     
-    criarArquivosRange(paginasMerge, paginasMerge * 2);
+    criarLimparArquivosRange(paginasMerge, paginasMerge * 2);
 
     // Abrir arquivos para leitura
     for (int i = 0; i < paginasMerge; ++i) {
@@ -753,7 +726,7 @@ void mergeArquivosFaseDois(int paginasMerge, int& escritasArquivo) {
     const int iFim = paginasMerge * 2;
 
     // Limpando arquivos de saída
-    criarArquivosRange(oInicio, oFim);
+    criarLimparArquivosRange(oInicio, oFim);
 
     // Abrir arquivos para leitura
     for (int i = iInicio; i < iFim; ++i) {
