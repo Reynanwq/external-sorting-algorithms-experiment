@@ -22,29 +22,6 @@ namespace fs = std::filesystem; // Alias para evitar digitar std::filesystem rep
 void ordenacaoPolifasica(vector<int>& dados, int m, int k, int r);
 void ordenacaoCascata(vector<int>& dados, int m, int k, int r);
 
-// // Funções Geral
-// double calcularAlfa(int escritasArquivo, int nRegistros) ;
-// double calcularBeta(int memoria, int nSequencias, int nRegistros);
-int calcularQtdRegistros(const vector<vector<int>>& sequencias);
-int calcularNumeroSequencias(const vector<vector<vector<int>>>& sequencias);
-void imprimirSaida(int fase, float beta, const vector<vector<vector<int>>>& sequencias);
-void imprimirSaidaIncremento(int fase, float beta, const vector<vector<vector<int>>>& sequencias, int incrementoPaginas);
-vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r);
-    // Funções para criação e processamento da heap mínima
-    // Importar estruturas
-void desmarcarTodosElementos(priority_queue<Element, vector<Element>, Compare>& heap);
-    // Manipulando arquivos
-void criarArquivos(int n);
-    // Cria ou limpa arquivos em um range
-void criarLimparArquivosRange(int inicio, int fim);
-bool apenasUmArquivoPreenchido(int n);
-
-    // Funções Geral - Intocadas
-void intercalaSequencias(vector<int>& dados, int m, int k);
-void calcularMetricas(const vector<int>& dados, int r, int k);
-    // Funções para processamento e geração de dados
-void exibirResultados(const vector<int>& dados, int r, int k);
-    // Funções Geral - Utilizadas
 
 // Funções Secundárias auxiliares
     // Funções para exibir - Importar no arquivo balanceado - pode usar ou não
@@ -157,117 +134,6 @@ void ordenacaoCascata(vector<int>& dados, int m, int k, int r) {
     cout << "Ordenação em Cascata ainda não implementada." << endl;
 }
 
-vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r) {
-    // priority_queue<int, vector<int>, greater<int>> heap;
-    priority_queue<Element, vector<Element>, Compare> heap;
-    vector<vector<int>> sequencias;
-    vector<int> sequenciaAtual;
-    int ultimoPush = 0;
-
-    // vector<int> dados = {7, 1, 5, 6, 3, 8, 2, 10, 4, 9, 1, 3, 7, 4, 1, 2, 3};
-
-    while (!dados.empty() || !heap.empty() || !sequenciaAtual.empty()) {
-        if (heap.size() < m && !dados.empty()) {
-            // cout << "ADD HEAP" << endl;
-            if (ultimoPush < dados.front()) {
-                heap.push(Element(dados.front()));
-            } else {
-                heap.push(Element(dados.front(), true));
-            }
-            dados.erase(dados.begin());
-
-        } else {
-            // cout << "ADD SEQUENCIA" << endl;
-            if (!heap.empty() && !heap.top().marked)  {
-                sequenciaAtual.push_back(heap.top().value);
-                ultimoPush = heap.top().value;
-                heap.pop();
-
-            } else {
-                sequencias.push_back(sequenciaAtual);
-                sequenciaAtual.clear();
-                ultimoPush = 0;
-                desmarcarTodosElementos(heap);
-            }
-        }
-            // exibirListaInt(dados, "Registros");
-            // exibirHeap(heap);
-            // exibirListaInt(sequenciaAtual, "Sequencia Atual");
-            // cout << "Heap mínima: " << heap.top().value << endl;
-            // cout << "Marcado: " << heap.top().marked << endl;
-            // exibirListaDeListasInt(sequencias);
-    }
-
-    // Garantir que geramos pelo menos m sequências
-    while (sequencias.size() < m) {
-        sequencias.push_back({});
-    }
-
-    // Verificar se a quantidade de sequências iniciais é igual r
-    if (sequencias.size() > r){
-        vector<vector<int>> primeirasRListas;
-        for (int i = 0; i < r; i++)
-        {
-            primeirasRListas.push_back(sequencias[i]);
-        }
-        // Exibir sequências geradas para depuração
-        // for (int i = 0; i < primeirasRListas.size(); ++i) {
-        //     cout << "Sequência " << i + 1 << ": ";
-        //     for (int valor : primeirasRListas[i]) {
-        //         cout << valor << " ";
-        //     }
-        //     cout << endl;
-        // }
-        return primeirasRListas;
-    }
-
-
-    return sequencias;
-}
-
-// Função para calcular métricas
-void calcularMetricas(const vector<int>& dados, int r, int k) {
-    int totalOperacoesEscrita = 0; // Placeholder
-    int totalRegistros = dados.size();
-    double alpha = static_cast<double>(totalOperacoesEscrita) / totalRegistros;
-    cout << "α(r): " << alpha << endl;
-    cout << "Cálculo de Métricas ainda não implementado." << endl;
-}
-
-// Função para calcular alfa
-// double calcularAlfa(int escritasArquivo, int nRegistros) {
-//     return round((escritasArquivo / nRegistros) * 100) / 100;
-// }
-
-// Função para calcular beta
-double calcularBeta(int memoria, int nSequencias, int nRegistros){
-    return round((1.0 / (memoria * nSequencias)) * nRegistros * 100) / 100;
-}
-
-// Função para exibir resultados
-void exibirResultados(const vector<int>& dados, int r, int k) {
-    cout << "Dados ordenados: ";
-    for (int valor : dados) {
-        cout << valor << " ";
-    }
-    cout << endl;
-    // Implementar exibição de métricas e fases
-    cout << "Resultados ainda não implementados." << endl;
-}
-
-// Função para desmarcar todos os elementos
-void desmarcarTodosElementos(priority_queue<Element, vector<Element>, Compare>& heap) {
-    vector<Element> temp;
-    while (!heap.empty()) {
-        Element elem = heap.top();
-        heap.pop();
-        elem.marked = false;
-        temp.push_back(elem);
-    }
-    for (const Element& elem : temp) {
-        heap.push(elem);
-    }
-}
 
 // Funções para exibir
 void exibirListaDeListasInt(vector<vector<int>>& listas) {
@@ -303,55 +169,6 @@ void exibirHeap(priority_queue<Element, vector<Element>, Compare> heap) {
         heap.pop();
     }
     cout << endl;
-}
-
-void criarArquivos(int n) {
-    // namespace fs = std::filesystem; // Alias para std::filesystem
-    fs::path folder = "pages";
-
-    // Cria a pasta 'pages' caso ela não exista
-    if (!fs::exists(folder)) {
-        fs::create_directory(folder);
-    }
-
-    // Cria n-1 arquivos .txt na pasta 'pages'
-    for (int i = 0; i < n; ++i) {
-        fs::path filePath = folder / (to_string(i) + ".txt");
-
-        // Verifica se o arquivo já existe
-        ofstream file(filePath, std::ios::trunc);
-        if (file.is_open()) {
-            file.close();
-            // cout << "Arquivo criado: " << filePath << endl;
-        } else {
-            // cerr << "Erro ao criar o arquivo: " << filePath << endl;
-        }
-    }
-}
-
-// Cria ou limpa arquivos em um range
-void criarLimparArquivosRange(int inicio, int fim) {
-    // namespace fs = std::filesystem; // Alias para std::filesystem
-    fs::path folder = "pages";
-
-    // Cria a pasta 'pages' caso ela não exista
-    if (!fs::exists(folder)) {
-        fs::create_directory(folder);
-    }
-
-    // Cria fim-1 arquivos .txt na pasta 'pages'
-    for (int i = inicio; i < fim; ++i) {
-        fs::path filePath = folder / (to_string(i) + ".txt");
-
-        // Verifica se o arquivo já existe
-        ofstream file(filePath, std::ios::trunc);
-        if (file.is_open()) {
-            file.close();
-            // cout << "Arquivo criado: " << filePath << endl;
-        } else {
-            // cerr << "Erro ao criar o arquivo: " << filePath << endl;
-        }
-    }
 }
 
 void salvarListasEmArquivos(const vector<vector<int>>& listas, int arquivosIntercalados) {
@@ -418,30 +235,6 @@ void intercalaSequenciasFaseDoisBalanceada(int& fase, int& arquivosIntercalados,
     criarLimparArquivosRange(arquivosIntercalados, arquivosIntercalados * 2); // Apaga conteúdo antigo
 }
 
-bool apenasUmArquivoPreenchido(int n) {
-    fs::path folder = "pages";
-    int countPreenchidos = 0;
-
-    for (int i = 0; i < n; ++i) {
-        fs::path filePath = folder / (to_string(i) + ".txt");
-        if (fs::exists(filePath)) {
-            ifstream file(filePath);
-            string line;
-            if (getline(file, line)) {
-                if (!line.empty()) {
-                    countPreenchidos++;
-                    if (countPreenchidos > 1) {
-                        return false;
-                    }
-                }
-            }
-            file.close();
-        }
-    }
-
-    return countPreenchidos == 1;
-}
-
 void salvarEstadoDasPaginas(int fase, int arquivosIntercalados, vector<vector<vector<int>>>& dadosEstado) {
     int turno = fase % 2;
     int inicio, fim;
@@ -487,65 +280,6 @@ void salvarEstadoDasPaginas(int fase, int arquivosIntercalados, vector<vector<ve
 
         // Adiciona a matriz do arquivo ao dadosEstado
         dadosEstado.push_back(matrizArquivo);
-    }
-}
-
-int calcularQtdRegistros(const vector<vector<int>>& sequencias){
-    int qtdRegistro = 0;
-    for (int i = 0; i < sequencias.size(); i++) {
-        qtdRegistro += sequencias[i].size();
-    }
-    return qtdRegistro;
-}
-
-int calcularNumeroSequencias(const vector<vector<vector<int>>>& sequencias){
-    int qtdSequencias = 0;
-    for (int i = 0; i < sequencias.size(); i++) {
-        qtdSequencias += sequencias[i].size();
-    }
-    return qtdSequencias;
-}
-
-void imprimirSaida(int fase, float beta, const vector<vector<vector<int>>>& sequencias){
-    cout << "fase " << fase << " " << beta << endl;
-    for (int i = 0; i < sequencias.size(); i++) {
-        if (sequencias[i].size()) {
-            cout << i + 1 << ": ";
-            for (int j = 0; j < sequencias[i].size(); j++){
-                for (int k = 0; k < sequencias[i][j].size(); k++) {
-                    if (k == 0){
-                        cout << "{" << sequencias[i][j][k] << " ";
-                    } else if(k < sequencias[i][j].size() - 1) {
-                        cout << sequencias[i][j][k] << " ";
-                    } else {
-                        cout << sequencias[i][j][k] << "}";
-                    }
-                }
-            }
-            cout << endl;
-
-        }
-    }
-}
-
-void imprimirSaidaIncremento(int fase, float beta, const vector<vector<vector<int>>>& sequencias, int incrementoPaginas){
-    cout << "fase " << fase << " " << beta << endl;
-    for (int i = 0; i < sequencias.size(); i++) {
-        if (sequencias[i].size()) {
-            cout << i + 1 + incrementoPaginas << ": ";
-            for (int j = 0; j < sequencias[i].size(); j++){
-                for (int k = 0; k < sequencias[i][j].size(); k++) {
-                    if (k == 0){
-                        cout << "{" << sequencias[i][j][k] << " ";
-                    } else if(k < sequencias[i][j].size() - 1) {
-                        cout << sequencias[i][j][k] << " ";
-                    } else {
-                        cout << sequencias[i][j][k] << "}";
-                    }
-                }
-            }
-            cout << endl;
-        }
     }
 }
 
