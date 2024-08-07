@@ -8,7 +8,7 @@
 
 using namespace std;
 
-// Testes
+// Teste
 void minhaFuncaoGeral();
 
 // Reynan - Funções em uso

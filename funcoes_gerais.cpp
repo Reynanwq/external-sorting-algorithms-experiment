@@ -1,5 +1,6 @@
 // funcoes_gerais.cpp
 #include "funcoes_gerais.h"
+#include "funcoes_secundarias.h"
 #include <iostream>
 #include <ctime>
 #include <filesystem>
