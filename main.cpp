@@ -20,9 +20,9 @@ namespace fs = std::filesystem; // Alias para evitar digitar std::filesystem rep
 
 // Funções para os métodos de ordenação externa
 void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arquivosTotais, int r, int nRegistros, vector<pair<int, float>> listBetas, int& escritasArquivo);
-void ordenacaoPolifasica(vector<int>& dados, int m, int k, int r);
-void ordenacaoCascata(vector<int>& dados, int m, int k, int r);
-
+void ordenacaoPolifasica(vector<vector<int>>& sequencias, int memoria, int arquivosAbertos, int maxSequenciasIniciais);
+void ordenacaoCascata(vector<int>& dados, int memoria, int arquivosAbertos, int maxSequenciasIniciais);
+// 
 int main() {
     // Funções para teste de integração
     // minhaFuncaoGeral();
@@ -38,6 +38,7 @@ int main() {
     int n = 17; // Número de registros
     if(n ==17){}; // Evitar erro unusable variable replit
 
+
     // vector<int> dados = gerarDadosAleatorios(n);
     vector<int> dados = {7, 1, 5, 6, 3, 8, 2, 10, 4, 9, 1, 3, 7, 4, 1, 2, 3};
     vector<vector<int>> sequencias = gerarSequenciasIniciais(dados, m, r);
@@ -50,14 +51,16 @@ int main() {
     criarArquivos(k);
 
     // Escolher o método de ordenação
-    char metodo = 'B'; // Pode ser 'B', 'P' ou 'C'
+    // k = 3, r = 49; // temp
+    char metodo = 'B';
+    // char metodo = 'P'; // Pode ser 'B', 'P' ou 'C'
 
     switch (metodo) {
         case 'B':
             ordenacaoBalanceada(sequencias, m, k, r, nRegistros, listBetas, escritasArquivo);
             break;
         case 'P':
-            ordenacaoPolifasica(dados, m, k, r);
+            ordenacaoPolifasica(sequencias, m, k, r);
             break;
         case 'C':
             ordenacaoCascata(dados, m, k, r);
@@ -75,6 +78,8 @@ int main() {
 
 // Função para ordenação balanceada multi-caminhos
 void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arquivosTotais, int r, int nRegistros, vector<pair<int, float>> listBetas, int& escritasArquivo) {
+    if (r == 0){}; // temp - avoid flags
+    
     int fase = 0;
     vector<vector<vector<int>>> estadoInicioFase;
     int arquivosIntercalados =  floor(arquivosTotais/2);
@@ -98,15 +103,22 @@ void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arqui
 }
 
 // Função para ordenação polifásica
-void ordenacaoPolifasica(vector<int>& dados, int m, int k, int r) {
-    gerarSequenciasIniciais(dados, m, r);
+void ordenacaoPolifasica(vector<vector<int>>& sequencias, int memoria, int arquivosAbertos, int maxSequenciasIniciais) {
+    if (memoria){} // temp - avoid flags
+
+    // gerarSequenciasIniciais(dados, memoria, maxSequenciasIniciais);
     // Implementar a ordenação polifásica
-    cout << "Ordenação Polifásica ainda não implementada." << endl;
+    // cout << "Ordenação Polifásica ainda não implementada." << endl;
+    vector<int> divisaoSequencias = calcularDivisaoSequenciasIniciais(maxSequenciasIniciais, arquivosAbertos);
+
+
 }
 
 // Função para ordenação em cascata
-void ordenacaoCascata(vector<int>& dados, int m, int k, int r) {
-    gerarSequenciasIniciais(dados, m, r);
+void ordenacaoCascata(vector<int>& dados, int memoria, int arquivosAbertos, int maxSequenciasIniciais) {
+    if (arquivosAbertos == 0){}; // temp - avoid flags
+
+    gerarSequenciasIniciais(dados, memoria, maxSequenciasIniciais);
     // Implementar a ordenação em cascata
     cout << "Ordenação em Cascata ainda não implementada." << endl;
 }

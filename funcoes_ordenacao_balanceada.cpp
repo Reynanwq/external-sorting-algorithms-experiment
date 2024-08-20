@@ -15,11 +15,11 @@ void minhaFuncaoBalanceada() {
 // Imprimir saída ordenação balanceada
 void imprimirSaida(int fase, float beta, const vector<vector<vector<int>>>& sequencias){
     cout << "fase " << fase << " " << beta << endl;
-    for (int i = 0; i < sequencias.size(); i++) {
+    for (unsigned long i = 0; i < sequencias.size(); i++) {
         if (sequencias[i].size()) {
             cout << i + 1 << ": ";
-            for (int j = 0; j < sequencias[i].size(); j++){
-                for (int k = 0; k < sequencias[i][j].size(); k++) {
+            for (unsigned long int j = 0; j < sequencias[i].size(); j++){
+                for (unsigned long int k = 0; k < sequencias[i][j].size(); k++) {
                     if (k == 0){
                         cout << "{" << sequencias[i][j][k] << " ";
                     } else if(k < sequencias[i][j].size() - 1) {
@@ -37,11 +37,11 @@ void imprimirSaida(int fase, float beta, const vector<vector<vector<int>>>& sequ
 
 void imprimirSaidaIncremento(int fase, float beta, const vector<vector<vector<int>>>& sequencias, int incrementoPaginas){
     cout << "fase " << fase << " " << beta << endl;
-    for (int i = 0; i < sequencias.size(); i++) {
+    for (unsigned long i = 0; i < sequencias.size(); i++) {
         if (sequencias[i].size()) {
             cout << i + 1 + incrementoPaginas << ": ";
-            for (int j = 0; j < sequencias[i].size(); j++){
-                for (int k = 0; k < sequencias[i][j].size(); k++) {
+            for (unsigned long j = 0; j < sequencias[i].size(); j++){
+                for (unsigned long k = 0; k < sequencias[i][j].size(); k++) {
                     if (k == 0){
                         cout << "{" << sequencias[i][j][k] << " ";
                     } else if(k < sequencias[i][j].size() - 1) {
@@ -58,11 +58,7 @@ void imprimirSaidaIncremento(int fase, float beta, const vector<vector<vector<in
 
 // Salvar dados
 void salvarListasEmArquivos(const vector<vector<int>>& listas, int arquivosIntercalados) {
-    // Cria a pasta 'pages' caso ela não exista
-    fs::path folder = "pages";
-    if (!fs::exists(folder)) {
-        fs::create_directory(folder);
-    }
+    fs::path folder = criarPasta("pages");
 
     // Abrir os arquivos de saída
     vector<ofstream> arquivos(arquivosIntercalados);

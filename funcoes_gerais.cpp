@@ -29,6 +29,8 @@ vector<int> gerarDadosAleatorios(int n) {
 
 // Reynan - Funções não utilizadas ainda
 void intercalaSequencias(vector<int>& dados, int m, int k) {
+    if (k == 0){} // temp - avoid flags
+
     // Estrutura de dados para armazenar sequências iniciais
     vector<vector<int>> sequencias;
     gerarSequenciasIniciais(dados, m, sequencias.size());
@@ -40,7 +42,7 @@ void intercalaSequencias(vector<int>& dados, int m, int k) {
     vector<int> indices(sequencias.size(), 0);
 
     // Inicializar a fila de prioridade com o primeiro elemento de cada sequência
-    for (int i = 0; i < sequencias.size(); ++i) {
+    for (unsigned long i = 0UL; i < sequencias.size(); ++i) {
         if (!sequencias[i].empty()) {
             pq.push(make_pair(sequencias[i][0], i));
         }
@@ -57,7 +59,7 @@ void intercalaSequencias(vector<int>& dados, int m, int k) {
         dadosOrdenados.push_back(valor);
 
         // Inserir o próximo elemento da sequência de origem, se existir
-        if (++indices[origem] < sequencias[origem].size()) {
+        if (static_cast<unsigned long>(++indices[origem]) < sequencias[origem].size()) {
             pq.push(make_pair(sequencias[origem][indices[origem]], origem));
         }
     }
@@ -67,6 +69,8 @@ void intercalaSequencias(vector<int>& dados, int m, int k) {
 }
 
 void calcularMetricas(const vector<int>& dados, int r, int k) {
+    if (r == 0 || k == 0){} // temp - avoid flags
+
     int totalOperacoesEscrita = 0; // Placeholder
     int totalRegistros = dados.size();
     double alpha = static_cast<double>(totalOperacoesEscrita) / totalRegistros;
@@ -75,6 +79,8 @@ void calcularMetricas(const vector<int>& dados, int r, int k) {
 }
 
 void exibirResultados(const vector<int>& dados, int r, int k) {
+    if (r == 0 || k == 0){} // temp - avoid flags
+
     cout << "Dados ordenados: ";
     for (int valor : dados) {
         cout << valor << " ";
@@ -95,7 +101,7 @@ double calcularBeta(int memoria, int nSequencias, int nRegistros){
 
 int calcularQtdRegistros(const vector<vector<int>>& sequencias){
     int qtdRegistro = 0;
-    for (int i = 0; i < sequencias.size(); i++) {
+    for (unsigned long i = 0; i < sequencias.size(); i++) {
         qtdRegistro += sequencias[i].size();
     }
     return qtdRegistro;
@@ -103,7 +109,7 @@ int calcularQtdRegistros(const vector<vector<int>>& sequencias){
 
 int calcularNumeroSequencias(const vector<vector<vector<int>>>& sequencias){
     int qtdSequencias = 0;
-    for (int i = 0; i < sequencias.size(); i++) {
+    for (unsigned long i = 0; i < sequencias.size(); i++) {
         qtdSequencias += sequencias[i].size();
     }
     return qtdSequencias;
@@ -117,7 +123,7 @@ vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r) {
     int ultimoPush = 0;
 
     while (!dados.empty() || !heap.empty() || !sequenciaAtual.empty()) {
-        if (heap.size() < m && !dados.empty()) {
+        if (heap.size() < static_cast<unsigned long>(m) && !dados.empty()) {
             // cout << "ADD HEAP" << endl;
             if (ultimoPush < dados.front()) {
                 heap.push(Element(dados.front()));
@@ -149,12 +155,12 @@ vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r) {
     }
 
     // Garantir que geramos pelo menos m sequências
-    while (sequencias.size() < m) {
+    while (sequencias.size() < static_cast<unsigned long>(m)) {
         sequencias.push_back({});
     }
 
     // Verificar se a quantidade de sequências iniciais é igual r
-    if (sequencias.size() > r){
+    if (sequencias.size() > static_cast<unsigned long>(r)){
         vector<vector<int>> primeirasRListas;
         for (int i = 0; i < r; i++)
         {
@@ -212,6 +218,38 @@ void criarArquivos(int n) {
     }
 }
 
+vector<fstream> criarArquivosDB(const fs::path& folder, const int& arquivosAbertos) {
+    vector<fstream> arquivos(arquivosAbertos);
+    for (int i = 0; i < arquivosAbertos; ++i) {
+        fs::path filePath = folder / (to_string(i) + ".db");
+        arquivos[i].open(filePath, ios::in | ios::out | ios::trunc);
+        if (!arquivos[i].is_open()) {
+            cerr << "Erro ao abrir o arquivo: " << filePath << endl;
+            return;
+        }
+    }
+    return arquivos;
+}
+
+vector<fstream> abrirArquivosDB(const fs::path& folder, const int& arquivosAbertos) {
+    vector<fstream> arquivos(arquivosAbertos);
+    for (int i = 0; i < arquivosAbertos; ++i) {
+        fs::path filePath = folder / (to_string(i) + ".db");
+        arquivos[i].open(filePath, ios::in | ios::out | ios::app);
+        if (!arquivos[i].is_open()) {
+            cerr << "Erro ao abrir o arquivo: " << filePath << endl;
+            return;
+        }
+    }
+    return arquivos;
+}
+
+void fecharArquivosDB(vector<fstream>& arquivos) {
+        for (auto& arquivo : arquivos) {
+            arquivo.close();
+        }
+    }
+
 void criarLimparArquivosRange(int inicio, int fim) {
     // namespace fs = std::filesystem; // Alias para std::filesystem
     fs::path folder = "pages";
@@ -259,3 +297,14 @@ bool apenasUmArquivoPreenchido(int n) {
 
     return countPreenchidos == 1;
 }
+
+// Manipulando pastas
+fs::path criarPasta(string nomePasta) {
+    // Cria a pasta 'pages' caso ela não exista
+    fs::path folder = nomePasta;
+    if (!fs::exists(folder)) {
+        fs::create_directory(folder);
+    }
+    return folder;
+}
+

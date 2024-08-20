@@ -4,9 +4,12 @@
 
 #include <vector>
 #include <queue>
+#include <fstream>
+#include <filesystem>
 #include "estruturas.h"
 
 using namespace std;
+namespace fs = std::filesystem;
 
 // Teste
 void minhaFuncaoGeral();
@@ -31,7 +34,13 @@ void desmarcarTodosElementos(priority_queue<Element, vector<Element>, Compare>& 
 
 // Manipulando arquivos
 void criarArquivos(int n);
+vector<fstream> criarArquivosDB(const fs::path& folder, const int& arquivosAbertos);
+vector<fstream> abrirArquivosDB(const fs::path& folder, const int& arquivosAbertos);
+void fecharArquivosDB(vector<fstream>& arquivos);
 void criarLimparArquivosRange(int inicio, int fim);
 bool apenasUmArquivoPreenchido(int n);
+
+// Manipulando pastas
+fs::path criarPasta(string nomePasta);
 
 #endif // FUNCOES_GERAIS_H
