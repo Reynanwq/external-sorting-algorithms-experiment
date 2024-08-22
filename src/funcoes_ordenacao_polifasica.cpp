@@ -68,16 +68,17 @@ int somaValoresLista(vector<int>& lista) {
     return somatorio;
 }
 
-void salvarListasEmArquivos(const vector<vector<int>>& listas, const int& arquivosAbertos, const int& maxSequenciasIniciais) {
-    fs::path folder = criarPasta("pages");
-    vector<fstream> arquivos = criarArquivosDB(folder, arquivosAbertos);
-    vector<int> divisaoSequencias = calcularDivisaoSequenciasIniciais(maxSequenciasIniciais, arquivosAbertos);
-    divisaoSequencias.erase(remove(divisaoSequencias.begin(), divisaoSequencias.end(), 0), divisaoSequencias.end());
+// void salvarListasEmArquivos(const vector<vector<int>>& listas, const int& arquivosAbertos, const int& maxSequenciasIniciais) {
+//     fs::path folder = criarPasta("pages");
+//     vector<fstream> arquivos = criarArquivosDB(folder, arquivosAbertos); // Verificar se o vetor não é vazio
+//     // Implementar verificação para saber se os arquivos não são vazios
+//     vector<int> divisaoSequencias = calcularDivisaoSequenciasIniciais(maxSequenciasIniciais, arquivosAbertos);
+//     divisaoSequencias.erase(remove(divisaoSequencias.begin(), divisaoSequencias.end(), 0), divisaoSequencias.end());
     
 
-    // IMPLEMENTAR ESTRUTURA DE DADOS QUE SERÁ ARMAZENADA
-    // 
+//     // IMPLEMENTAR ESTRUTURA DE DADOS QUE SERÁ ARMAZENADA
+//     // 
 
 
-    fecharArquivosDB(arquivos);
-}
+//     fecharArquivosDB(arquivos);
+// }

@@ -109,6 +109,8 @@ void ordenacaoPolifasica(vector<vector<int>>& sequencias, int memoria, int arqui
     // gerarSequenciasIniciais(dados, memoria, maxSequenciasIniciais);
     // Implementar a ordenação polifásica
     // cout << "Ordenação Polifásica ainda não implementada." << endl;
+
+    
     vector<int> divisaoSequencias = calcularDivisaoSequenciasIniciais(maxSequenciasIniciais, arquivosAbertos);
 
 

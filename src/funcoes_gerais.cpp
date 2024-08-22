@@ -225,7 +225,7 @@ vector<fstream> criarArquivosDB(const fs::path& folder, const int& arquivosAbert
         arquivos[i].open(filePath, ios::in | ios::out | ios::trunc);
         if (!arquivos[i].is_open()) {
             cerr << "Erro ao abrir o arquivo: " << filePath << endl;
-            return;
+            return vector<fstream>();
         }
     }
     return arquivos;
@@ -238,7 +238,7 @@ vector<fstream> abrirArquivosDB(const fs::path& folder, const int& arquivosAbert
         arquivos[i].open(filePath, ios::in | ios::out | ios::app);
         if (!arquivos[i].is_open()) {
             cerr << "Erro ao abrir o arquivo: " << filePath << endl;
-            return;
+            return vector<fstream>();
         }
     }
     return arquivos;

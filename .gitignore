@@ -1,6 +1,10 @@
 # Pastas
 pages
+.vscode
+teste
 
 # Arquivos
 *.exe
 *.vscode
+build/*
+!build/
