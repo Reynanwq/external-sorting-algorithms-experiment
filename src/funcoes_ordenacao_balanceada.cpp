@@ -419,7 +419,7 @@ void mergeArquivosFaseDois(int paginasMerge, int& escritasArquivo) {
 }
 
 // Intercalar arquivos
-float intercalaSalvarCalcularBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas ) {
+float intercalaSalvarCalcularBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>>& listBetas ) {
     salvarEstadoDasPaginas(fase, arquivosIntercalados, estadoInicioFase);
     int nSequencias = calcularNumeroSequencias(estadoInicioFase);
     float beta = calcularBeta(memoria, nSequencias, nRegistros);
@@ -427,14 +427,14 @@ float intercalaSalvarCalcularBalanceada(int& fase, int& arquivosIntercalados, in
     return beta;
 }
 
-void intercalaSequenciasFaseUmBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas, int& escritasArquivo) {
+void intercalaSequenciasFaseUmBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>>& listBetas, int& escritasArquivo) {
     float beta = intercalaSalvarCalcularBalanceada(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas);
     imprimirSaida(fase, beta, estadoInicioFase);
     mergeArquivosFaseUm(arquivosIntercalados, escritasArquivo);
     criarLimparArquivosRange(0, arquivosIntercalados); // Apaga conteúdo antigo
 }
 
-void intercalaSequenciasFaseDoisBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>> listBetas, int& escritasArquivo) {
+void intercalaSequenciasFaseDoisBalanceada(int& fase, int& arquivosIntercalados, int& nRegistros, int& memoria, vector<vector<vector<int>>>& estadoInicioFase, vector<pair<int, float>>& listBetas, int& escritasArquivo) {
     float beta = intercalaSalvarCalcularBalanceada(fase, arquivosIntercalados, nRegistros, memoria, estadoInicioFase, listBetas);
     imprimirSaidaIncremento(fase, beta, estadoInicioFase, arquivosIntercalados);
     mergeArquivosFaseDois(arquivosIntercalados, escritasArquivo);

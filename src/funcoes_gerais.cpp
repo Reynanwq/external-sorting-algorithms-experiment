@@ -225,7 +225,7 @@ vector<fstream> criarArquivosDB(const fs::path& folder, const int& arquivosAbert
         arquivos[i].open(filePath, ios::in | ios::out | ios::trunc);
         if (!arquivos[i].is_open()) {
             cerr << "Erro ao abrir o arquivo: " << filePath << endl;
-            return vector<fstream>();
+            exit(-1);
         }
     }
     return arquivos;
@@ -235,10 +235,10 @@ vector<fstream> abrirArquivosDB(const fs::path& folder, const int& arquivosAbert
     vector<fstream> arquivos(arquivosAbertos);
     for (int i = 0; i < arquivosAbertos; ++i) {
         fs::path filePath = folder / (to_string(i) + ".db");
-        arquivos[i].open(filePath, ios::in | ios::out | ios::app);
+        arquivos[i].open(filePath, ios::in | ios::out);
         if (!arquivos[i].is_open()) {
             cerr << "Erro ao abrir o arquivo: " << filePath << endl;
-            return vector<fstream>();
+            exit(-1);
         }
     }
     return arquivos;
@@ -249,6 +249,35 @@ void fecharArquivosDB(vector<fstream>& arquivos) {
             arquivo.close();
         }
     }
+
+fstream truncarArquivoDB(fstream& arquivoAberto, int& indiceArquivo) {
+    arquivoAberto.close();
+    fs::path folder = pegarPastaPages();
+    fs::path filePath = folder / (to_string(indiceArquivo) + ".db");
+    fstream arquivo;
+    arquivo.open(filePath, ios::in | ios::out | ios::trunc);
+    if (!arquivo.is_open()) {
+        cerr << "Erro ao abrir o arquivo: " << filePath << endl;
+        exit(-1);
+    }
+    return arquivo;
+}
+
+bool arquivoVazio(fstream& arquivo) {
+    streampos posicao = arquivo.tellg();
+    arquivo.seekg(0, ios::end);
+    bool vazio = (arquivo.tellg() == 0);
+    arquivo.seekg(posicao);
+    return vazio;
+}
+
+int qualArquivoEstaVazio(vector<fstream>& arquivos) {
+    for (unsigned long i = 0; i < arquivos.size(); i++) {
+        if (arquivoVazio(arquivos[i]))
+            return i;
+    }
+    return -1;
+}
 
 void criarLimparArquivosRange(int inicio, int fim) {
     // namespace fs = std::filesystem; // Alias para std::filesystem
@@ -308,3 +337,11 @@ fs::path criarPasta(string nomePasta) {
     return folder;
 }
 
+fs::path pegarPastaPages() {
+    // Cria a pasta 'pages' caso ela não exista
+    fs::path folder = "pages";
+    if (!fs::exists(folder)) {
+        fs::create_directory(folder);
+    }
+    return folder;
+}

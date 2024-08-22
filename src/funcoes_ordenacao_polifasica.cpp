@@ -8,6 +8,7 @@
 #include "funcoes_ordenacao_polifasica.h"
 #include "funcoes_secundarias.h"
 #include "funcoes_gerais.h"
+#include "estruturas.h"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -68,17 +69,50 @@ int somaValoresLista(vector<int>& lista) {
     return somatorio;
 }
 
-// void salvarListasEmArquivos(const vector<vector<int>>& listas, const int& arquivosAbertos, const int& maxSequenciasIniciais) {
-//     fs::path folder = criarPasta("pages");
-//     vector<fstream> arquivos = criarArquivosDB(folder, arquivosAbertos); // Verificar se o vetor não é vazio
-//     // Implementar verificação para saber se os arquivos não são vazios
-//     vector<int> divisaoSequencias = calcularDivisaoSequenciasIniciais(maxSequenciasIniciais, arquivosAbertos);
-//     divisaoSequencias.erase(remove(divisaoSequencias.begin(), divisaoSequencias.end(), 0), divisaoSequencias.end());
+void salvarListasEmArquivosBinary(const vector<vector<int>>& listas, const int& arquivosAbertos, const int& maxSequenciasIniciais) {
+    fs::path folder = criarPasta("pages");
+    vector<fstream> arquivos = criarArquivosDB(folder, arquivosAbertos);
     
+    vector<int> divisaoSequencias = calcularDivisaoSequenciasIniciais(maxSequenciasIniciais, arquivosAbertos);
 
-//     // IMPLEMENTAR ESTRUTURA DE DADOS QUE SERÁ ARMAZENADA
-//     // 
+    // Retira o '0' da lista para que as 'r' sequências iniciais sejam armazenadas nos primeiros 'k-1' arquivos
+    divisaoSequencias.erase(remove(divisaoSequencias.begin(), divisaoSequencias.end(), 0), divisaoSequencias.end());
 
+    // Guarda as sequências nos arquivos que ainda podem receber sequências
+    int arquivosEscrita = arquivosAbertos - 1;
+    vector<int> contadorSequencia(arquivosEscrita, -1);
 
-//     fecharArquivosDB(arquivos);
+    for (unsigned long i = 0; i < listas.size(); i++) {
+        // Encontrar qual o indice do arquivo para armazenar a sequencia 'i'
+        int resto = i % arquivosEscrita;
+        bool achouResto = false;
+        while (!achouResto) {
+            if (resto == arquivosEscrita)
+                resto = 0;
+            
+            if (divisaoSequencias[resto] > 0) {
+                divisaoSequencias[resto]--;
+                contadorSequencia[resto]++;
+                achouResto = true;
+            } else
+                resto++;
+        }
+        
+        // Armazena valores
+        for (unsigned long j = 0; j < listas[i].size(); j++) {
+            ValorBinary binary;
+            binary.ocupado = true;
+            binary.valor = listas[i][j];
+            binary.sequencia = contadorSequencia[resto];
+            binary.tamSequencia = listas[i].size();
+            binary.posicao = j;
+            arquivos[resto].write(reinterpret_cast<char*>(&binary), sizeof(ValorBinary));
+        }
+    }
+    
+    fecharArquivosDB(arquivos);
+}
+
+// void mergePolifasico(vector<fstream>& arquivos) {
+
 // }

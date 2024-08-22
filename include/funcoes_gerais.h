@@ -37,10 +37,15 @@ void criarArquivos(int n);
 vector<fstream> criarArquivosDB(const fs::path& folder, const int& arquivosAbertos);
 vector<fstream> abrirArquivosDB(const fs::path& folder, const int& arquivosAbertos);
 void fecharArquivosDB(vector<fstream>& arquivos);
+fstream truncarArquivoDB(fstream& arquivoAberto, int& indiceArquivo);
+bool arquivoVazio(fstream& arquivo);
+int qualArquivoEstaVazio(vector<fstream>& arquivos);
+
 void criarLimparArquivosRange(int inicio, int fim);
 bool apenasUmArquivoPreenchido(int n);
 
 // Manipulando pastas
 fs::path criarPasta(string nomePasta);
+fs::path pegarPastaPages();
 
 #endif // FUNCOES_GERAIS_H

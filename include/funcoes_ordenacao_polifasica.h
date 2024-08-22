@@ -9,6 +9,6 @@ void minhaFuncaoPolifasica();
 
 vector<int> calcularDivisaoSequenciasIniciais(const int& qtdSequenciasIniciais, const int& arqAbertos);
 int somaValoresLista(vector<int>& lista);
-void salvarListasEmArquivos(const vector<vector<int>>& listas, const int& arquivosAbertos, const int& maxSequenciasIniciais);
+void salvarListasEmArquivosBinary(const vector<vector<int>>& listas, const int& arquivosAbertos, const int& maxSequenciasIniciais);
 
 #endif // FUNCOES_ORDENACAO_POLIFASICA_H

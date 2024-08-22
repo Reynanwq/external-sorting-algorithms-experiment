@@ -31,10 +31,34 @@ struct Valor {
     int linha;
 };
 
-// Comparador para a fila de prioridade da intercalação
+// Comparador para a fila de prioridade da intercalação balanceada
 struct Comparador {
     bool operator()(const Valor& a, const Valor& b) {
         return a.valor > b.valor; // Para min-heap
+    }
+};
+
+// Structs ordenação polifásica
+struct ValorBinary {
+    bool ocupado;
+    int valor;
+    int sequencia;
+    int tamSequencia;
+    int posicao;
+};
+
+// Função de comparação
+struct ComparadorValorBinary {
+    bool operator()(const ValorBinary& a, const ValorBinary& b) {
+        if (a.ocupado != b.ocupado) {
+            // Se um dos dois estiver ocupado e o outro não, o que estiver ocupado é considerado menor
+            return a.ocupado > b.ocupado; // True é considerado maior (menor na ordenação)
+        }
+        // Se ambos têm o mesmo valor para 'ocupado', compara os inteiros
+        if (a.valor != b.valor) return a.valor < b.valor;
+        if (a.sequencia != b.sequencia) return a.sequencia < b.sequencia;
+        if (a.tamSequencia != b.tamSequencia) return a.tamSequencia < b.tamSequencia;
+        return a.posicao < b.posicao;
     }
 };
 

@@ -19,9 +19,9 @@ using namespace std;
 namespace fs = std::filesystem; // Alias para evitar digitar std::filesystem repetidamente
 
 // Funções para os métodos de ordenação externa
-void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arquivosTotais, int r, int nRegistros, vector<pair<int, float>> listBetas, int& escritasArquivo);
-void ordenacaoPolifasica(vector<vector<int>>& sequencias, int memoria, int arquivosAbertos, int maxSequenciasIniciais);
-void ordenacaoCascata(vector<int>& dados, int memoria, int arquivosAbertos, int maxSequenciasIniciais);
+pair<float, float> ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arquivosTotais, int r, int nRegistros, vector<pair<int, float>> listBetas, int& escritasArquivo);
+pair<float, float> ordenacaoPolifasica(vector<vector<int>>& sequencias, int memoria, int arquivosAbertos, int maxSequenciasIniciais, int nRegistros);
+pair<float, float> ordenacaoCascata(vector<int>& dados, int memoria, int arquivosAbertos, int maxSequenciasIniciais, int nRegistros);
 // 
 int main() {
     // Funções para teste de integração
@@ -51,33 +51,33 @@ int main() {
     criarArquivos(k);
 
     // Escolher o método de ordenação
-    // k = 3, r = 49; // temp
-    char metodo = 'B';
-    // char metodo = 'P'; // Pode ser 'B', 'P' ou 'C'
+    k = 4, r = 49; // temp
+    // char metodo = 'B';
+    char metodo = 'P'; // Pode ser 'B', 'P' ou 'C'
 
     switch (metodo) {
         case 'B':
             ordenacaoBalanceada(sequencias, m, k, r, nRegistros, listBetas, escritasArquivo);
             break;
         case 'P':
-            ordenacaoPolifasica(sequencias, m, k, r);
+            ordenacaoPolifasica(sequencias, m, k, r, nRegistros);
             break;
         case 'C':
-            ordenacaoCascata(dados, m, k, r);
+            ordenacaoCascata(dados, m, k, r, nRegistros);
             break;
         default:
             cerr << "Método de ordenação inválido!" << endl;
             return 1;
     }
 
-    float alfa = calcularAlfa(escritasArquivo, nRegistros);
+    double alfa = calcularAlfa(escritasArquivo, nRegistros);
     cout << "final " << alfa << endl;
     
     return 0;
 }
 
 // Função para ordenação balanceada multi-caminhos
-void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arquivosTotais, int r, int nRegistros, vector<pair<int, float>> listBetas, int& escritasArquivo) {
+pair<float, float> ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arquivosTotais, int r, int nRegistros, vector<pair<int, float>> listBetas, int& escritasArquivo) {
     if (r == 0){}; // temp - avoid flags
     
     int fase = 0;
@@ -100,27 +100,62 @@ void ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arqui
     } else {
         imprimirSaidaIncremento(fase, beta, estadoInicioFase, arquivosIntercalados);
     }
+    float alfa = calcularAlfa(escritasArquivo, nRegistros);
+    return make_pair(alfa, listBetas[0].second);
 }
 
 // Função para ordenação polifásica
-void ordenacaoPolifasica(vector<vector<int>>& sequencias, int memoria, int arquivosAbertos, int maxSequenciasIniciais) {
+pair<float, float> ordenacaoPolifasica(vector<vector<int>>& sequencias, int memoria, int arquivosAbertos, int maxSequenciasIniciais, int nRegistros) {
     if (memoria){} // temp - avoid flags
+    if (sequencias.empty()){} // temp - avoid flags
+    int escritasArquivo = 0;
+    float alfa = 0, beta = 0;
 
     // gerarSequenciasIniciais(dados, memoria, maxSequenciasIniciais);
-    // Implementar a ordenação polifásica
-    // cout << "Ordenação Polifásica ainda não implementada." << endl;
-
-    
     vector<int> divisaoSequencias = calcularDivisaoSequenciasIniciais(maxSequenciasIniciais, arquivosAbertos);
+    salvarListasEmArquivosBinary(sequencias, arquivosAbertos, maxSequenciasIniciais);
 
+    fs::path folder = criarPasta("pages");
+    vector<fstream> arquivos = abrirArquivosDB(folder, arquivosAbertos);
 
+    int arquivoVazio = qualArquivoEstaVazio(arquivos);
+    cout << "Arquivo vazio: " << arquivoVazio << endl;
+
+    // Próximos passos
+    // chamar merge aqui, retornar o Beta 0
+    // Criar função para salvar estado atual das páginas em uma estrutura de ValorBinary
+    // Criar função para imprimir estrutura, ela recebe a fase atual, Beta e a estrutura com ValorBinary
+    // Depois que as firulas passaram chama o merge real
+    // Criar / chamar merge real 
+        // Verifica qual é a página vazia
+        // criar vector para ser utilizado ao final, nele se guarda o tamanho das sequencias de cada registro e põe para -1 a página vazia
+        // Lê um valor de cada página não vazia e seta os seus endereços como não ocupado
+        // Loop começa adicionando o menor valor ao arquivo vazio
+        // Condição de parada - Criar função que calcula quantas páginas vazias existem - se for igual a qtdArquivos -1 -> para
+            // O tamanho de sequencia desse registro será a soma do tamanho das sequencias dos n registros iniciais
+            // Lê um valor da pagina do registro que foi armazenado e 
+            // Verifica se o valor lido é da próxima sequência - if
+                // caso seja é necessário retornar o ponteiro de leitura daquele arquivo em 1 posicao
+            // Verifia também se não chegou no .eof para poder colocar na heap - else if
+                // Se não chegou coloca no heap mínima e seta seu endereço no arquivo para não ocupado
+            // Verifica se um dos três arquivos chegou no fim  | .eof - if
+                // Caso sim - Criar função para Copiar os valores do final dos arquivos que não chegaram no fim para frente
+                // chamar função para truncar arquivo que chegou ao final
+
+    alfa = calcularAlfa(escritasArquivo, nRegistros);
+    return make_pair(alfa, beta);
 }
 
 // Função para ordenação em cascata
-void ordenacaoCascata(vector<int>& dados, int memoria, int arquivosAbertos, int maxSequenciasIniciais) {
-    if (arquivosAbertos == 0){}; // temp - avoid flags
-
+pair<float, float> ordenacaoCascata(vector<int>& dados, int memoria, int arquivosAbertos, int maxSequenciasIniciais, int nRegistros) {
+    if (arquivosAbertos == 0 || nRegistros == 0){}; // temp - avoid flags
+    int escritasArquivo = 0;
+    float alfa = 0, beta = 0;
+    
     gerarSequenciasIniciais(dados, memoria, maxSequenciasIniciais);
     // Implementar a ordenação em cascata
     cout << "Ordenação em Cascata ainda não implementada." << endl;
+
+    alfa = calcularAlfa(escritasArquivo, nRegistros);
+    return make_pair(alfa, beta);
 }
