@@ -34,18 +34,46 @@ void desmarcarTodosElementos(priority_queue<Element, vector<Element>, Compare>& 
 
 // Manipulando arquivos
 void criarArquivos(int n);
+void criarLimparArquivosRange(int inicio, int fim);
+bool apenasUmArquivoPreenchido(int n);
+
 vector<fstream> criarArquivosDB(const fs::path& folder, const int& arquivosAbertos);
 vector<fstream> abrirArquivosDB(const fs::path& folder, const int& arquivosAbertos);
 void fecharArquivosDB(vector<fstream>& arquivos);
 fstream truncarArquivoDB(fstream& arquivoAberto, int& indiceArquivo);
 bool arquivoVazio(fstream& arquivo);
-int qualArquivoEstaVazio(vector<fstream>& arquivos);
+int qualOPrimeiroArquivoVazio(vector<fstream>& arquivos);
+vector<int> quaisArquivosEstaoVazios(vector<fstream>& arquivos);
+int quantosArquivosCheios(vector<fstream>& arquivos);
 
-void criarLimparArquivosRange(int inicio, int fim);
-bool apenasUmArquivoPreenchido(int n);
+vector<vector<ValorBinary>> salvarArquivoNaMemoria(fstream& arquivo);
+vector<vector<vector<ValorBinary>>> salvarEstadoDosArquivosNaMemoria(vector<fstream>& arquivos);
+
+ValorBinary lerRegistroDoArquivo(fstream& arquivo, const int& sequencia);
+ValorBinary criarValorBinaryInvalido();
+void retornarPonteiroDeLeituraUmRegistro(fstream& arquivo, const auto& registro);
+
+int escreverRegistroNoArquivo(fstream& arquivo, ValorBinary& registro);
+int escreverRegistroDesocupadoNoArquivo(fstream& arquivo, const ValorBinary& registro);
+bool arquivoEstaAberto(const fstream& arquivo);
+priority_queue<ValorBinary, vector<ValorBinary>, ComparadorValorBinary> lerRegistrosIniciais(vector<fstream>& arquivos, const int& memoria, const int& indiceArquivoVazio, vector<ValorBinary>& ultimoRegistroLidoDeCadaArquivo, const int& numSequencia);
+int esvaziarFilaDePrioridade(priority_queue<ValorBinary, vector<ValorBinary>, ComparadorValorBinary>& heap, fstream& arquivo, const ValorBinary& registro);
+
+int quantosArquivosChegaramEOF(vector<fstream>& arquivos, const int& indiceArquivoVazio);
+int qualArquivoChegouEmEOF(vector<fstream>& arquivos, const int& indiceArquivoVazio);
+int somarTamanhoSequencias(const vector<ValorBinary>& registros);
+void limparBufferStreamVector(vector<fstream>& arquivos);
+void limparBufferStream(fstream& arquivo);
 
 // Manipulando pastas
 fs::path criarPasta(string nomePasta);
 fs::path pegarPastaPages();
+
+// Imprimindo resultados
+void imprimirResultadoValorBinary(const vector<vector<vector<ValorBinary>>>& listaDeMatriz, const int& fase, const double& beta);
+
+// calculando para saída
+int quantidadeDeRegistrosValorBinary(const vector<vector<vector<ValorBinary>>>& arquivosEmMemoria);
+int quantidadeDeSequenciasValorBinary(const vector<vector<vector<ValorBinary>>>& arquivosEmMemoria);
 
 #endif // FUNCOES_GERAIS_H

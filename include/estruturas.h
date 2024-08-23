@@ -41,10 +41,23 @@ struct Comparador {
 // Structs ordenação polifásica
 struct ValorBinary {
     bool ocupado;
+    bool registroFalso;
     int valor;
     int sequencia;
     int tamSequencia;
     int posicao;
+    int arquivoOrigem;
+
+    // Operador de igualdade
+    bool operator==(const ValorBinary& other) const {
+        return ocupado == other.ocupado &&
+               registroFalso == other.registroFalso &&
+               valor == other.valor &&
+               sequencia == other.sequencia &&
+               tamSequencia == other.tamSequencia &&
+               posicao == other.posicao &&
+               arquivoOrigem == other.arquivoOrigem;
+    }
 };
 
 // Função de comparação
@@ -55,10 +68,12 @@ struct ComparadorValorBinary {
             return a.ocupado > b.ocupado; // True é considerado maior (menor na ordenação)
         }
         // Se ambos têm o mesmo valor para 'ocupado', compara os inteiros
+        if (a.registroFalso != b.registroFalso) return a.registroFalso < b.registroFalso;
         if (a.valor != b.valor) return a.valor < b.valor;
         if (a.sequencia != b.sequencia) return a.sequencia < b.sequencia;
         if (a.tamSequencia != b.tamSequencia) return a.tamSequencia < b.tamSequencia;
-        return a.posicao < b.posicao;
+        if (a.posicao != b.posicao) return a.posicao < b.posicao;
+        return a.arquivoOrigem < b.arquivoOrigem;
     }
 };
 
