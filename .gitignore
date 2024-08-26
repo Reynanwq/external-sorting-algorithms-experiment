@@ -8,3 +8,4 @@ teste
 *.vscode
 build/*
 !build/
+emulacao/build

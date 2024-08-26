@@ -8,6 +8,7 @@
 #include <string>
 #include <cmath>
 
+#include "matplotlibcpp.h"
 #include "funcoes_gerais.h"
 #include "funcoes_secundarias.h"
 #include "funcoes_ordenacao_balanceada.h"
@@ -17,6 +18,7 @@
 
 using namespace std;
 namespace fs = std::filesystem; // Alias para evitar digitar std::filesystem repetidamente
+namespace plt = matplotlibcpp;
 
 // Funções para os métodos de ordenação externa
 pair<float, float> ordenacaoBalanceada(vector<vector<int>>& sequencias, int memoria, int arquivosTotais, int r, int nRegistros, vector<pair<int, float>> listBetas, int& escritasArquivo);
@@ -24,6 +26,8 @@ pair<float, float> ordenacaoPolifasica(vector<vector<int>>& sequencias, const in
 pair<float, float> ordenacaoCascata(vector<int>& dados, int memoria, int arquivosAbertos, int sequenciasIniciais, int nRegistros);
 // 
 int main() {
+    // plt::plot({1,2,3,4},"*");
+    // plt::show();
     // Funções para teste de integração
     // minhaFuncaoGeral();
     // minhaFuncaoSecundaria();
@@ -31,71 +35,64 @@ int main() {
     // minhaFuncaoPolifasica();
     // minhaFuncaoCascata();
 
+    vector<float> X;
+    vector<float> Y;
+
     // Exemplo de uso
-    int m = 2;  // Capacidade da memória interna
-    int k = 3;  // Número de arquivos abertos
+    // int m = 2;  // Capacidade da memória interna
+    // int k = 3;  // Número de arquivos abertos
     int r = 3;  // Número de sequências iniciais
-    int n = 6; // Número de registros
-    if(n ==17){}; // Evitar erro unusable variable replit
+
+    char metodo = 'B';
+    for (size_t k = 4; k <= 12; k += 2)
+    {
+        for (size_t m = 3; m <= 68; m += 15)
+        {
+            for (size_t i = 1; i <= 451; i+50)
+            {
+            
+                    r = i;
+                    vector<vector<int>> sequencias = gerarSequenciasIniciaisSimulacao(m, r);
+                    vector<pair<int, float>> listBetas; // Recuperar valores de Beta para cada fase
+                    int nRegistros = calcularQtdRegistros(sequencias);
+                    int escritasArquivo = 0; // Para calcular alfa
+                    pair<float, float> alfaBeta;
+
+                    cout << fixed << setprecision(2);
+
+                    criarArquivos(k);
 
 
-    // vector<int> dados = gerarDadosAleatorios(n);
-    // vector<int> dados = {7, 1, 5, 6, 3, 8, 2, 10, 4, 9, 1, 3, 7, 4, 1, 2, 3};
-    // vector<int> dados; // = {4, 3, 1, 6, 5, 3, 3};
-    // vector<int> dados1 = {7, 1, 5, 6, 3, 8, 2, 10, 4, 9, 1, 3, 7, 4, 1, 2, 3};
-    // dados.insert(dados.end(), dados1.begin(), dados1.end());
+                    switch (metodo) {
+                        case 'B':
+                            alfaBeta = ordenacaoBalanceada(sequencias, m, k, r, nRegistros, listBetas, escritasArquivo);
+                            break;
+                        case 'P':
+                            // alfaBeta = ordenacaoPolifasica(sequencias, m, k, r, nRegistros);
+                            break;
+                        case 'C':
+                            // alfaBeta = ordenacaoCascata(dados, m, k, r, nRegistros);
+                            break;
+                        default:
+                            cerr << "Método de ordenação inválido!" << endl;
+                            return 1;
+                    
+                    }
 
-    // r = 6;
+                    X.push_back(alfaBeta.first);
+                    Y.push_back(alfaBeta.second);
+                
+            
+            }
+        }
 
-    char metodo;
-    // int m, k, r, n;
-
-    // Leitura da primeira linha
-    cin >> metodo >> m >> k >> r >> n;
-
-    // Vetor para armazenar os inteiros da segunda linha
-    // vector<int> numeros(n);
-    vector<int> dados(n);
-
-    // Leitura da segunda linha de acordo com o valor de "quantidade"
-    for (int i = 0; i < n; ++i) {
-        cin >> dados[i];
     }
 
+    plt::figure_size(1920, 1080);
+    plt::plot(X, Y, "r-"); // "r-" indica uma linha vermelha
+    // plt::savefig("grafico.png");
+    plt::save("grafico.png");
 
-    vector<vector<int>> sequencias = gerarSequenciasIniciais(dados, m, r);
-    vector<pair<int, float>> listBetas; // Recuperar valores de Beta para cada fase
-    int nRegistros = calcularQtdRegistros(sequencias);
-    int escritasArquivo = 0; // Para calcular alfa
-    pair<float, float> alfaBeta;
-
-    cout << fixed << setprecision(2);
-
-    criarArquivos(k);
-
-    // Escolher o método de ordenação
-    // k = 4; // temp
-    // char metodo = 'B';
-    // char metodo = 'P'; // Pode ser 'B', 'P' ou 'C'
-
-    switch (metodo) {
-        case 'B':
-            alfaBeta = ordenacaoBalanceada(sequencias, m, k, r, nRegistros, listBetas, escritasArquivo);
-            break;
-        case 'P':
-            alfaBeta = ordenacaoPolifasica(sequencias, m, k, r, nRegistros);
-            break;
-        case 'C':
-            alfaBeta = ordenacaoCascata(dados, m, k, r, nRegistros);
-            break;
-        default:
-            cerr << "Método de ordenação inválido!" << endl;
-            return 1;
-    }
-
-    // double alfa = calcularAlfa(escritasArquivo, nRegistros);
-    cout << "final " << alfaBeta.first << endl;
-    
     return 0;
 }
 

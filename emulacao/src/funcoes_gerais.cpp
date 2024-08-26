@@ -184,6 +184,62 @@ vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r) {
     return sequencias;
 }
 
+vector<vector<int>> gerarSequenciasIniciaisSimulacao(int m, int r) {
+    priority_queue<Element, vector<Element>, Compare> heap;
+    vector<vector<int>> sequencias;
+    vector<int> sequenciaAtual;
+    vector<int> dados = gerarDadosAleatorios(100*r);
+    int ultimoPush = 0;
+
+    while (!dados.empty() || !heap.empty() || !sequenciaAtual.empty()) {
+        if (heap.size() < static_cast<unsigned long>(m) && !dados.empty()) {
+            // cout << "ADD HEAP" << endl;
+            if (ultimoPush < dados.front()) {
+                heap.push(Element(dados.front()));
+            } else {
+                heap.push(Element(dados.front(), true));
+            }
+            dados.erase(dados.begin());
+
+        } else {
+            // cout << "ADD SEQUENCIA" << endl;
+            if (!heap.empty() && !heap.top().marked)  {
+                sequenciaAtual.push_back(heap.top().value);
+                ultimoPush = heap.top().value;
+                heap.pop();
+
+            } else {
+                sequencias.push_back(sequenciaAtual);
+                sequenciaAtual.clear();
+                ultimoPush = 0;
+                desmarcarTodosElementos(heap);
+            }
+        }
+        if (dados.empty() && sequencias.size() < static_cast<unsigned long>(r)) {
+            dados = gerarDadosAleatorios(100*r);
+        }
+        
+    }
+    
+
+    // Garantir que geramos pelo menos m sequências
+    while (sequencias.size() < static_cast<unsigned long>(m)) {
+        sequencias.push_back({});
+    }
+
+    // Verificar se a quantidade de sequências iniciais é igual r
+    if (sequencias.size() > static_cast<unsigned long>(r)){
+        vector<vector<int>> primeirasRListas;
+        for (int i = 0; i < r; i++)
+        {
+            primeirasRListas.push_back(sequencias[i]);
+        }
+        return primeirasRListas;
+    }
+
+    return sequencias;
+}
+
 void desmarcarTodosElementos(priority_queue<Element, vector<Element>, Compare>& heap) {
     vector<Element> temp;
     while (!heap.empty()) {

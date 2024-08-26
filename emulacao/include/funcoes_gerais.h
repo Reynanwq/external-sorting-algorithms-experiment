@@ -30,6 +30,7 @@ int calcularNumeroSequencias(const vector<vector<vector<int>>>& sequencias);
 
 // Utilizando heap mínima
 vector<vector<int>> gerarSequenciasIniciais(vector<int> dados, int m, int r);
+vector<vector<int>> gerarSequenciasIniciaisSimulacao(int m, int r);
 void desmarcarTodosElementos(priority_queue<Element, vector<Element>, Compare>& heap);
 
 // Manipulando arquivos
